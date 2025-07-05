@@ -1,0 +1,18 @@
+{
+    "name": "@blazyts/backend-lib",
+    "type": "module",
+    "version": "1.0.0",
+    "module": "index.ts",
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "ws": "^8.18.1"
+    },
+    "devDependencies": {
+        "@blazyts/better-standard-library": "1.0.0",
+        "@types/bun": "latest",
+        "@types/ws": "^8.18.1",
+        "bun-types": "latest"
+    }
+}
