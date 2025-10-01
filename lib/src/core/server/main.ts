@@ -1,12 +1,12 @@
 
 import * as http from "node:http";
-
+import {panic} from "@blazyts/better-standard-library"
 import type { CustomWebSocketRouter } from "../websocket/server/app";
-import { Router } from "./Router";
 import { ClientBuilder } from "../client/client";
 import { Config } from "./types/config/Config";
 import { GetLastHookReturnType } from "../types/Hooks/GetLastHooks";
 import { Hooks } from "../types/Hooks/Hooks";
+import { Router } from "./types/router/Router";
 
 
 
@@ -71,7 +71,11 @@ export class AppBuilder<
             
         }
     }) {
-        return this;
+        if(this.config.properties.redefineRoutes === false){
+            if(this.router.routes.has(args.name)){
+                panic
+            }
+        }
     }
 
 
