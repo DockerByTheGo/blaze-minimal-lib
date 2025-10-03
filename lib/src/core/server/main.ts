@@ -6,10 +6,7 @@ import { ClientBuilder } from "../client/client";
 import { Config } from "./types/config/Config";
 import { GetLastHookReturnType } from "../types/Hooks/GetLastHooks";
 import { Hooks } from "../types/Hooks/Hooks";
-import { Router } from "./types/router/Router";
-
-
-
+import { Routes } from "./types/router/Router";
 
 export class AppBuilder<
     THooks extends {
@@ -17,7 +14,7 @@ export class AppBuilder<
         beforeSend: Hooks,
         afterSend: Hooks,
     },
-    TRouter extends Router
+    TRouter extends Routes
 > {
 
     constructor(
@@ -55,8 +52,6 @@ export class AppBuilder<
         })
     }
 
-    //TODO: add the rest 
-
     defineRoute<
     TRouteName extends string,
     >(args: {
@@ -68,14 +63,16 @@ export class AppBuilder<
             put?: () => unknown,
             delete?: () => unknown,
             patch?: () => unknown,
-            
         }
     }) {
         if(this.config.properties.redefineRoutes === false){
             if(this.router.routes.has(args.name)){
-                panic
+                if(this.router)
+                panic("route " + args.name + " already exists")
             }
         }
+
+        this.router
     }
 
 
