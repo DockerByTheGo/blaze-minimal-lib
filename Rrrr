@@ -1,0 +1,9 @@
+Object as api
+Make runtime first
+
+Aftwr that add options when passing the objevt to overwite how certain methods are interpreted, for example as sec9jd objevt you can overwrite methods
+
+App.use( crudify( obj, {
+GwtOne: {options: "get"}}))
+
+Also have an interface called Icrudifiable which has the GetMethods PostMethods etc.. modifiers, so that ypu van pass classes which implement it, for example have one class whixh implwments it which just returns all methods prefixed with get for the GetMethids accessor
