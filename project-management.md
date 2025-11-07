@@ -14,10 +14,10 @@ For this just make it so that it correcly gets the return types from route handl
 
 ## Route
 
-### Regex support
-
-### Expression based matching 
-
 ### Dsl support
+
+## Hooks
+### Basic usage
+### smuggling inbetween hooks
 
 # Bugs
