@@ -1,4 +1,4 @@
-import { Router } from "../../server/types/router/Router";
+import { Router } from "../../server/router/Router";
 import { ClientReponse } from "./ClientReponse";
 
 export class Client<R extends Router> {
