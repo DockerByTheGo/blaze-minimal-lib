@@ -1,0 +1,25 @@
+import { TypeMarker, Optionable } from "@blazyts/better-standard-library";
+import { RouteMAtcher } from "../../../types";
+import { ExtractParams } from "../../main";
+
+
+export class NormalRouting<T extends string> implements RouteMAtcher<ExtractParams<T>> {
+
+    type = "normal";
+
+    constructor(private routeString: T) { }
+
+
+    getRouteString() {
+        return this.routeString;
+    }
+
+    typeInfo: TypeMarker<string>;
+
+    match(path: string): Optionable<ExtractParams<T>> {
+        return this.routeString === path ? this.routeString : undefined;
+    }
+
+    TGetContextType: ExtractParams<T>;
+
+}
