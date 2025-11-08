@@ -2,7 +2,7 @@ import { Config } from "./types/Config";
 import { ClientHooks } from "./types/ClientHooks";
 import { GetLastHookReturnType } from "../types/Hooks/GetLastHooks";
 import { Client } from "./types/Client";
-import { Router } from "../server/types/router/Router";
+import { Router } from "../server/router/Router";
 
 export class ClientBuilder<
     TRouter extends Router,

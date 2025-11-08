@@ -1,32 +1,12 @@
 
 import * as http from "node:http";
 
-import type { CustomWebSocketRouter } from "../websocket/server/app";
 import { ClientBuilder } from "../client/client";
 import { Config } from "./types/config/Config";
 import { GetLastHookReturnType } from "../types/Hooks/GetLastHooks";
 import { Hooks } from "../types/Hooks/Hooks";
-import { Router } from "./types/router/Router";
+import { Router } from "./router/Router";
 
-interface Routing {
-    type: string,
-    isMatching: (path: string) => boolean,
-    getRouteString: () => string
-}
-
-class NormalRouting implements Routing {
-    
-    type = "normal";
-
-    constructor(routeString: string){}
-
-    isMatching(path: string) {
-        return true; 
-    }
-
-    getRouteString(){}
-
-}
 
 class DSLRouting implements Routing {
     
@@ -83,7 +63,6 @@ export class AppBuilder<
     }
 
 
-    route()
 
     get<TRouteName extends string>(args: {
         name: TRouteName,

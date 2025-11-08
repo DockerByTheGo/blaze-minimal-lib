@@ -7,18 +7,20 @@ This is the core of the project which is more of a lib than a framework.
 Add Winter.js support so that it can run on any framework.
 
 
-
 # Router
-
 
 ## Making responses
 
 ### respondWith(e: Response)
+
 by default the response is the return value of the handler. However you can use the ctx object to make a response and send it without returning from the function 
 
 Note: if you return something from the handler with ctx.respondWith it wont be sent and so it wont go through afterResponse hooks however it will be passed to afterHandler Hook 
+
 ```ts
-() => {ctx.respondWith(new Response("Hello World")
+() => {
+  
+  ctx.respondWith(new Response("Hello World"))
 
   // the rest of the code will still exexcute
 
@@ -45,6 +47,7 @@ app.get("/idk", handler => {
 Note: this is not true for hooks. To return a Response from a hook you need to explicitely return a Response no matter the state of the setting
 
 ### implicit response
+
 if you do not want any kind of return to be the response you can disable implicit response
 
 #### setting it 
@@ -72,7 +75,6 @@ app.get("/idk", handler => {
 	}
 })
 ```
-
 
 ### afterHandler (({ctx: Context, result: any}) => any)
 
