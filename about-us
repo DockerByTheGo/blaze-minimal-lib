@@ -1,0 +1,9 @@
+blazy is a minimal, composablr, end to end typesafe, backend oriented web framework.
+
+# Minimal
+we do not wanna do much, our aim is simple
+
+# Typesafe
+we have tried to make the framework as type safe as possible. 
+
+## Why is typesafety important
