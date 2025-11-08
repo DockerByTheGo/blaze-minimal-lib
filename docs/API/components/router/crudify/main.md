@@ -134,15 +134,11 @@ app.use('/users', crudify<User>({
 }));
 ```
 
-## Best Practices
+## Expose service
 
-1. **Input Validation**: Always validate user input
-2. **Error Handling**: Handle errors appropriately
-3. **Pagination**: Implement pagination for large datasets
-4. **Caching**: Add caching for better performance
-5. **Rate Limiting**: Protect your API from abuse
+this allows you to pass an object and its public methods become endpoints. By default every method is gonna be post and no validation is enforced since there is  no schema to get. If the object implements the ICrudified interface it will be translated to the appropirate http verbs however there is still no validation. Also you can pass the "guess" flag as a scond arg and it will try to guess the metthods from the object (for example if a method has get in the name it will be  a get if it has create it will be post, etc...). To enforce validation you can use our ObjectBuilder builder which allows you to define the type for the arg of a func using a vakidator 
 
-## Next Steps
-- Learn about [Object Builder](../object-builder/main.md)
-- Explore [Error Handling](../error-handling/main.md)
-- See [Examples](../examples/main.md) for practical implementations
+
+ObjectBuiler.new({docs: ""}).addPrivateProperty("name-of-property", property).addPrivateMethod(internalCtx /*contains name of property, all properties and all previously defined methods*/ => ..., {docs: "idk"}).addPublicMethod("name", z.object({}), ({internalCtx, arg}) => {...}, {docs: "idk"})
+
+this will allows us to safeguard and include validation and even docs for the endppoints

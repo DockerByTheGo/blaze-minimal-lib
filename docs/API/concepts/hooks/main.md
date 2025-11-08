@@ -1,5 +1,9 @@
 # General 
 
+## Overview
+
+Lifecycle hooks in @blazy/http-core allow you to tap into specific moments in your application's execution flow. These hooks provide a way to execute code at different stages of a request/response cycle, enabling you to manage resources, modify behavior, and handle errors effectively.
+
 ## General things
 
 ### The return of the previous is the context of the next
@@ -18,18 +22,6 @@ app.hook(handler, "name-of-subapp") // on a specific app
 
 app.hook(handler, "base") // at thr first level of apps e.g the root app
 ```
-
-
-
-#### route vs app hooks 
-
-some hooks can be applied per router level so that they only apply to one router. 
-
-
-Why ?
-
-well it improvies readability since you logically separate components of your handler
-
 
 #### inheritance scope
 

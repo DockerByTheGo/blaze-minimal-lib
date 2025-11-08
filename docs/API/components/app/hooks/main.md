@@ -1,4 +1,8 @@
 
+### beforeStart 
+runs before the server starts listening for connections
+
+
 ### `afterStart`
 
 Runs after the server has started and is accepting connections.
