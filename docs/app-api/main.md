@@ -3,30 +3,8 @@
 ## Overview
 
 The App API provides the core functionality for creating and managing your @blazy/http-core applications. This document covers the main methods and properties available on the Blaze application instance.
-
-## Creating an Application
-
-```typescript
-import { Blaze } from '@blazy/http-core';
-
-const app = new Blaze({
-  // Optional configuration
-  env: process.env.NODE_ENV || 'development',
-  port: 3000,
-  // ... other options
-});
-```
-
 ## Core Methods
 
-### lazy
-
-You can provide an async function that will load on first time a request matching the route is received. It's useful for dynamic imports to reduce startup time.
-```ts
-app.use("/big", () => import("./big-handler"), { lazy: true });
-```
-
-this is help when you need faster startup time if possible. For example you have a lambda for the server which spins up the server but the server needs to init a very heavy resource which one route uses, you can use lazy to only load the handler when the route is called. 
 
 ### Use 
 
@@ -38,7 +16,6 @@ Add middleware or subapps to the application.
 // Add a single middleware
 app.use((req, res, next) => {
   console.log('Request received');
-  next();
 });
 
 // Add multiple middleware
@@ -53,54 +30,6 @@ app.use(middleware, {
   path: '/api', // Only apply to this path
   method: 'GET' // Only apply to GET requests
 });
-```
-
-### HTTP Methods
-
-#### `get(path: string, ...handlers: RequestHandler[]): this`
-#### `post(path: string, ...handlers: RequestHandler[]): this`
-#### `put(path: string, ...handlers: RequestHandler[]): this`
-#### `delete(path: string, ...handlers: RequestHandler[]): this`
-#### `patch(path: string, ...handlers: RequestHandler[]): this`
-
-Define routes for different HTTP methods.
-
-```typescript
-app.get('/users', (req, res) => {
-  // Handle GET /users
-  res.json({ users: [] });
-});
-
-app.post('/users', (req, res) => {
-  // Handle POST /users
-  const user = createUser(req.body);
-  res.status(201).json(user);
-});
-```
-
-#### `all(path: string, ...handlers: RequestHandler[]): this`
-
-Matches all HTTP methods for the given path.
-
-```typescript
-app.all('/api/*', (req, res, next) => {
-  // This will run for all requests to /api/*
-  next();
-});
-```
-
-#### `route(path: string): Route`
-
-Creates a new route instance for the given path.
-
-```typescript
-app.route('/users')
-  .get((req, res) => {
-    // GET /users
-  })
-  .post((req, res) => {
-    // POST /users
-  });
 ```
 
 ## Expose service
@@ -134,24 +63,6 @@ process.on('SIGTERM', async () => {
 });
 ```
 
-## Configuration
-
-### `set(key: string, value: any): this`
-### `get(key: string): any`
-
-Manage application settings.
-
-```typescript
-app.set('trust proxy', true);
-const env = app.get('env');
-```
-
-
-
-## Next Steps
-- Learn about [Subapps](../concepts/subapps/main.md)
-- Explore [Configuration](../concepts/config/main.md) options
-- See [Examples](../examples/main.md) for practical implementations
 
 ## macros
 
