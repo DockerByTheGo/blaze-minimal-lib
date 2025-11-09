@@ -12,12 +12,11 @@ For this just make it so that it correcly gets the return types from route handl
 
 ## routify (easy, mid level curicalty) 
 
-## Route
-
-### Regex support
+## Router
 
 ### Expression based matching 
 
-### Dsl support
+Extract the different types of routing (e.g. simple, regex, dsl) into different packages
+
 
 # Bugs
