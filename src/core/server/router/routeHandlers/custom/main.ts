@@ -1,10 +1,19 @@
-import { Optionable } from "@blazyts/better-standard-library";
+import { Optionable, TypeMarker } from "@blazyts/better-standard-library";
+import { RouteMAtcher } from "../types";
 /*
 
 if it returns nullable optionable it means that the route is not matching
 */
-class Custom<ctxProviderReturn> {
+class Custom<ctxProviderReturn> implements RouteMAtcher<ctxProviderReturn>{
     constructor(private ctxProvider: (path: string) =>  Optionable<ctxProviderReturn>) {}
+    TGetContextType : ctxProviderReturn;
+    typeInfo = new TypeMarker("Custom");
+    match(path: string): Optionable<ctxProviderReturn> {
+        return this.ctxProvider(path)
+    }
+    getRouteString(): string {
+        return "";
+    }
 }
 
 

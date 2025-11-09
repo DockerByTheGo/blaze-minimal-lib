@@ -1,6 +1,6 @@
 import { RouteMAtcher } from "./routeHandlers/types";
 import { RouteHandler } from "../types/router/RouteHandler";
-import { NormalRouting, Simple } from "./routeHandlers";
+import { NormalRouting } from "./routeHandlers/normal/variations/NormalRouting";
 
 export type Router = Record<string, RouteHandler>;
 
