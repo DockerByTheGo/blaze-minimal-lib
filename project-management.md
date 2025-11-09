@@ -10,4 +10,8 @@
 
 ## Router
 
+## Hooks
+### Basic usage
+### smuggling inbetween hooks
+
 # Bugs
