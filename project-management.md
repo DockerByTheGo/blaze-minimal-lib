@@ -14,4 +14,8 @@
 ### Basic usage
 ### smuggling inbetween hooks
 
+# Others
+
+## MAke a soap to json converter and the opposite 
+
 # Bugs

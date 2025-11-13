@@ -1,11 +1,10 @@
 import { Config } from "./types/Config";
 import { ClientHooks } from "./types/ClientHooks";
-import { GetLastHookReturnType } from "../types/Hooks/GetLastHooks";
 import { Client } from "./types/Client";
-import { Router } from "../server/router/Router";
+import { RouteTree } from "../server/router/Router";
 
 export class ClientBuilder<
-    TRouter extends Router,
+    TRouter extends RouteTree,
     THooks extends ClientHooks
 > {
     constructor(
@@ -33,7 +32,7 @@ export class ClientBuilder<
     beforeSend< // make it so that if we add a certain header here it removes it from the requored parameters
         TReturn
     >(
-        func: (arg: GetLastHookReturnType<THooks["beforeSend"]>) => TReturn
+        func: (arg: THooks["beforeSend"]["TGetLastHookReturnType"]) => TReturn
     ): ClientBuilder<
         TRouter,
         THooks & { beforeSend: { handler: (arg: GetLastHookReturnType<THooks["beforeSend"]>) => TReturn } }
@@ -43,7 +42,7 @@ export class ClientBuilder<
         return this;
     }
 
-    static new<TRouter extends Router>(router: TRouter){
+    static new<TRouter extends RouteTree>(router: TRouter){
         return new ClientBuilder<
             TRouter,
             ClientHooks

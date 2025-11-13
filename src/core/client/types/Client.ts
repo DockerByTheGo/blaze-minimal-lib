@@ -1,7 +1,7 @@
-import { Router } from "../../server/router/Router";
+import { RouteTree } from "../../server/router/Router";
 import { ClientReponse } from "./ClientReponse";
 
-export class Client<R extends Router> {
+export class Client<R extends RouteTree> {
     routes: {
         [Route in keyof R]: (arg: {
             data: R[Route]["RequestData"];
@@ -12,3 +12,4 @@ export class Client<R extends Router> {
         ) => Promise<ClientReponse<R[Route]["Responses"]>>;
     }
 }
+

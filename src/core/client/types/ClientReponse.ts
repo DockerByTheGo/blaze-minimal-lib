@@ -2,7 +2,7 @@ import { HttpResponse } from "../client";
 import { isSuccess } from "../isSuccess";
 import { isError } from "./isError";
 
-
+// TODO: remake to use oneof for the response
 export class ClientReponse<ResponseData extends HttpResponse> {
     constructor(public readonly rawData: ResponseData) { }
 

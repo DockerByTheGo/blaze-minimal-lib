@@ -1,10 +1,10 @@
-import { Hook } from "../../types/Hooks/Hooks";
+import { Hook, Hooks } from "../../types/Hooks/Hooks";
 
 
 
 export type ClientHooks = {
-    beforeSend: Hook[];
-    afterReceive: Hook[];
-    onErrored: Hook[]; // a type of afterReceive
+    beforeSend: Hooks<Hook<string, (arg: unknown) => unknown>[]>
+    afterReceive: Hooks<Hook<string, (arg: unknown) => unknown>[]>
+    onErrored: Hooks<Hook<string, (arg: unknown) => unknown>[]>
 };
 

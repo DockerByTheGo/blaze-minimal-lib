@@ -5,7 +5,7 @@ import { ClientBuilder } from "../client/client";
 import { Config } from "./types/config/Config";
 import { GetLastHookReturnType } from "../types/Hooks/GetLastHooks";
 import { Hooks } from "../types/Hooks/Hooks";
-import { Router } from "./router/Router";
+import { RouteTree } from "./router/Router";
 
 
 class DSLRouting implements Routing {
@@ -36,7 +36,7 @@ export class AppBuilder<
         beforeSend: Hooks,
         afterSend: Hooks,
     },
-    TRouter extends Router
+    TRouter extends RouteTree
 > {
 
     private constructor(
