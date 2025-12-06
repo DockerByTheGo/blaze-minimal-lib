@@ -5,11 +5,11 @@ import { ClientBuilder } from "../client/client";
 import { Config } from "./types/config/Config";
 import { GetLastHookReturnType } from "../types/Hooks/GetLastHooks";
 import { Hooks } from "../types/Hooks/Hooks";
-import { RouteTree } from "./router/Router";
+import { RouteTree } from "./router/variations/Router";
 
 
 class DSLRouting implements Routing {
-    
+
     type = "dsl";
 
     isMatching(path: string) {
@@ -20,14 +20,14 @@ class DSLRouting implements Routing {
 }
 
 class RegexRouting implements Routing {
-    
+
     type = "regex";
 
     isMatching(path: string) {
-        return true; 
+        return true;
     }
 
-    getRouteString(){}
+    getRouteString() { }
 }
 
 export class AppBuilder<
@@ -43,14 +43,14 @@ export class AppBuilder<
         protected hooks: THooks,
         protected router: TRouter,
         protected config: Config
-    ) {}
+    ) { }
 
     start(port: Port) {
-        
-        
+
+
     }
 
-    post<TRouteName extends string, THandlerReturn >(args: {
+    post<TRouteName extends string, THandlerReturn>(args: {
         name: TRouteName,
         handler: (arg: GetLastHookReturnType<THooks["beforeHandle"]>) => THandlerReturn
     }) {
@@ -79,7 +79,7 @@ export class AppBuilder<
     //TODO: add the rest 
 
     defineRoute<
-    TRouteName extends string,
+        TRouteName extends string,
     >(args: {
         name: TRouteName,
         routes: {
@@ -89,7 +89,7 @@ export class AppBuilder<
             put?: () => unknown,
             delete?: () => unknown,
             patch?: () => unknown,
-            
+
         }
     }) {
         return this;

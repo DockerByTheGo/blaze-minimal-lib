@@ -1,7 +1,7 @@
 import { Config } from "./types/Config";
 import { ClientHooks } from "./types/ClientHooks";
 import { Client } from "./types/Client";
-import { RouteTree } from "../server/router/Router";
+import { RouteTree } from "../server/router/variations/main";
 
 export class ClientBuilder<
     TRouter extends RouteTree,
@@ -11,7 +11,7 @@ export class ClientBuilder<
         private hooks: THooks,
         private config: Config,
         protected router: TRouter
-    ){}
+    ) { }
 
     hook<
         THookType extends keyof ClientHooks,
@@ -28,7 +28,7 @@ export class ClientBuilder<
         this.hooks[args.name] = args;
         return this;
     }
-    
+
     beforeSend< // make it so that if we add a certain header here it removes it from the requored parameters
         TReturn
     >(
@@ -42,7 +42,7 @@ export class ClientBuilder<
         return this;
     }
 
-    static new<TRouter extends RouteTree>(router: TRouter){
+    static new<TRouter extends RouteTree>(router: TRouter) {
         return new ClientBuilder<
             TRouter,
             ClientHooks
@@ -51,7 +51,7 @@ export class ClientBuilder<
                 "afterReceive": [],
                 "beforeSend": [],
                 "onErrored": []
-            }, 
+            },
             {
                 retries: 3,
             },
