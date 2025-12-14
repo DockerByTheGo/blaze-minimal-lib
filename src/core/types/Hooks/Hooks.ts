@@ -1,56 +1,50 @@
 import { Last, TypeMarker } from "@blazyts/better-standard-library";
 
 export class Hook<
-    TName extends string, 
+    TName extends string,
     THandler extends (arg: unknown) => unknown
->{
-    constructor(public name: TName, public handler: THandler){}
+> {
+    constructor(public name: TName, public handler: THandler) { }
 
     TGetArgType: Parameters<THandler>[0];
 }
 
 type FindHookByName<
-  THooks extends readonly Hook<string, any>[],
-  TTargetName extends string
+    THooks extends readonly Hook<string, any>[],
+    TTargetName extends string
 > = THooks extends readonly [
-  infer First extends Hook<string, any>,
-  ...infer Rest extends readonly Hook<string, any>[]
-]
-  ? First["name"] extends TTargetName
-    ? First
-    : FindHookByName<Rest, TTargetName>
-  : never;
-
-type FindNextHookByName<
-  THooks extends readonly Hook<string, any>[],
-  TTargetName extends string,
-  Found extends boolean = false
-> =
-  THooks extends readonly [
     infer First extends Hook<string, any>,
     ...infer Rest extends readonly Hook<string, any>[]
-  ]
+]
+    ? First["name"] extends TTargetName
+    ? First
+    : FindHookByName<Rest, TTargetName>
+    : never;
+
+type FindNextHookByName<
+    THooks extends readonly Hook<string, any>[],
+    TTargetName extends string,
+    Found extends boolean = false
+> =
+    THooks extends readonly [
+        infer First extends Hook<string, any>,
+        ...infer Rest extends readonly Hook<string, any>[]
+    ]
     ? Found extends true
-      ? First // <-- immediately return the next one
-      : First["name"] extends TTargetName
-        ? FindNextHookByName<Rest, TTargetName, true>
-        : FindNextHookByName<Rest, TTargetName, false>
+    ? First // <-- immediately return the next one
+    : First["name"] extends TTargetName
+    ? FindNextHookByName<Rest, TTargetName, true>
+    : FindNextHookByName<Rest, TTargetName, false>
     : never;
 
 
 export class Hooks<
     THooks extends readonly (Hook<string, (arg: unknown) => unknown>)[],
     VLastHookReturnType = ReturnType<Last<THooks>["handler"]>
-> implements TypeMarker<"Hooks">{
+> extends TypeMarker<"Hooks"> {
 
-    type = "Hooks" as const;
-
-    getType() {
-        return this.type;
-    }
-
-    constructor(public v : THooks){
-        
+    protected constructor(public v: THooks) {
+        super("Hooks");
     }
 
     TGetLastHookReturnType: VLastHookReturnType;
@@ -73,12 +67,12 @@ export class Hooks<
             handler: (arg: FindHookByName<THooks, TExistingHookName>["TGetArgType"]) => ReturnType<FindHookByName<THooks, TExistingHookName>["handler"]>
         }
     }): Hooks<THooks> {
-        
+
     }
 
     add<
         THookName extends string,
-        THookHandler extends (v: VLastHookReturnType extends unknown ? VLastHookReturnType : any) => unknown 
+        THookHandler extends (v: VLastHookReturnType extends unknown ? VLastHookReturnType : any) => unknown
     >(v: {
         name: THookName,
         handler: THookHandler
@@ -89,34 +83,34 @@ export class Hooks<
         ])
     }
 
-    static new(){
+    static new() {
         return new Hooks([] as Hook<string, (arg: unknown) => unknown>[])
     }
 
-    static empty(){
+    static empty(): Hooks<[]> {
         return new Hooks([] as const)
     }
 
-    static from<T extends Hooks<Hook[]>>(v: T){
+    static from<T extends Hooks<Hook<string, (arg: unknown) => unknown>[]>>(v: T) {
         return new Hooks(v.v)
     }
 
 }
 
 const h = Hooks
-.empty()
-.add({
+    .empty()
+    .add({
         name: "idk" as const,
         handler: v => "gg" as const
-})
-.add({
+    })
+    .add({
         name: "idk2" as const,
         handler: v => "ddd" as const
-})
-.placeBefore({
-        existingHookName: "idk2",
-        newHook:{
+    })
+    .placeBefore({
+        existingHookName: "idk",
+        newHook: {
             name: "idk3" as const,
-            handler: v => "ddd" as const
+            handler: v => "gg" as const
         }
-})
+    })
