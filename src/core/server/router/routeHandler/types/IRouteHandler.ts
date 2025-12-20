@@ -13,4 +13,5 @@ export interface IRouteHandler<
     TResponse extends Response
 > {
     handleRequest: (arg: TRequest) => TResponse
+    getClientRepresentation: unknown
 }
