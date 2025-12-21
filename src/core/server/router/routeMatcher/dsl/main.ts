@@ -12,13 +12,17 @@ function match<T extends string>(schema: T, config: { [K in T]: (v: K) => void }
     return config[schema](schema)
 }
 
-const types = [{ date: "(" }, { number: "$" }] as const
+const types = [{ date: "(" }, { number: "$" }] 
 
-function getParamType(s: ("date" | "number") & {} ): Optionable<"date" | "number"> {
+function getParamType(s: ("(" | "$") & {} ): Optionable<"date" | "number"> {
     s.length > 1 && panic("only one char accecpted");
 
-    return [...types.values()].includes(s)
-    ? Optionable.new(s) 
+    const symbols = [...types.map(v => v.date || v.number)]
+    const names = [...types.map(v => v.date ? "date" : "number")]
+    console.log(symbols)
+
+    return symbols.includes(s)
+    ? Optionable.new(names[symbols.indexOf(s)]) 
     : Optionable.none()
 
 }
@@ -48,13 +52,17 @@ export class DSLRouting<TRoute extends string> implements RouteMAtcher<ExtractPa
                 const ParamType = getParamType(currentMatcherPart[currentMatcherPart.length - 1])
                 ParamType.try({
                     ifNone: () => g[paramName] = currentRoutePart as string,
-                    ifNotNone: v => match(
-                        v,
-                        {
-                            "date": v => g[paramName] = new Date(currentRoutePart),
-                            "number": v => g[paramName] = new Number(v)
+                    ifNotNone: v => {
+                        console.log("f",v)
+                        switch (v){
+                            case "date":
+                                g[paramName] = new Date(currentRoutePart);
+                                break;
+                            case "number":
+                                g[paramName] = parseInt(currentRoutePart)
+                                break;
                         }
-                    )
+                    }
 
                 })
             } else {
