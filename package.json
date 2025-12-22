@@ -10,7 +10,8 @@
         "ws": "^8.18.1"
     },
     "devDependencies": {
-        "@blazyts/better-standard-library": "1.0.0",
+        "@blazyts/better-standard-library": "workspace:*",
+        "@blazyts/http-types": "workspace:*",
         "@types/bun": "latest",
         "@types/ws": "^8.18.1",
         "bun-types": "latest"

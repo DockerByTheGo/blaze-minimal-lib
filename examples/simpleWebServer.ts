@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { ResponseStatus, WebRouter } from "../src/app";
-import { builtIns } from "../src/builtins/main";
+import { builtIns } from "../../blazy-edge/src/pluings/file-upload";
 import { ApiPath } from "../src/types/apiApth";
 import { FileName } from "../src/types/filename";
 import { Port } from "../src/types/networking/port";

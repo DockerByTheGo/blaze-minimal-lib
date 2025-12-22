@@ -3,6 +3,7 @@ import { URecord } from "@blazyts/better-standard-library"
 class RequestObjectHelper<
 TBodySchema extends URecord,
 THeaders extends URecord,
+TPath extends String
 > {
     constructor(
         private readonly v: {

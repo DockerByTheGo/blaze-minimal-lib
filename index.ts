@@ -2,7 +2,6 @@ export { RouterObject } from "./src/core/server/router/Router";
 
 
 
-
 type TypeMarked = {type: string}
 
 function typeBasedMatch<T extends TypeMarked>(

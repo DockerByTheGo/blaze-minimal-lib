@@ -1,5 +1,5 @@
 import { RouteTree } from "../server/router/types";
-import { CleintBuilderConstructors } from "./client-builder/clientBuilder";
+import { CleintBuilderConstructors } from "./client-builder/constructors";
 
 
 export type Routes<R extends RouteTree> = {
@@ -34,8 +34,6 @@ export class Client<TRouteTree extends RouteTree> {
 
     }
 
-    static constructors = new CleintBuilderConstructors()
-
     batch(v: Routes<RouteTree>) {
 
     } // send multiple requests as one to avoid multiple hadnshakes
@@ -47,7 +45,7 @@ export class Client<TRouteTree extends RouteTree> {
     
     probably needs to be inside blazy edge 
     */
-    confirmSchema(){}
+    confirmSchema() { }
 
 
 }

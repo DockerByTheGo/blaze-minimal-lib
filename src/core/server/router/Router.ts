@@ -9,6 +9,8 @@ import { FileRouteHandler, NormalRouteHandler } from "./routeHandler";
 import { IRouteHandler } from "./routeHandler/types";
 import { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import { ClientBuilder } from "../../client/client-builder/clientBuilder";
+import { Optionable, OptionableString } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
+import { Path } from "./utils/path/Path";
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -17,7 +19,8 @@ export class RouterObject<
 
     constructor(
         public routerHooks: TRouterHooks,
-        public routes: TRoutes
+        public routes: TRoutes,
+        public routeFinder: (path: Path<string>) => ((req: Request) => unknown)
     ) {
 
     }
@@ -69,6 +72,7 @@ export class RouterObject<
                 "beforeRequest": arg => { return { koko: "koko" } as const },
                 "afterResponse": arg => { return { koko: "koko" } as const }
             }
+
         })
 
     }
@@ -77,7 +81,7 @@ export class RouterObject<
 
     }
 
-    http(){
+    http() {
 
     }
 
@@ -99,6 +103,10 @@ export class RouterObject<
 
         return ClientBuilder.constructors.fromRouteTree(this.routes)
 
+    }
+
+    route(request) {
+        return this.routeFinder(new Path(path))
     }
 
 }
