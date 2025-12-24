@@ -4,6 +4,14 @@ import {expectTypeOf} from "vitest"
 
 const h = RouterObject
     .empty()
+    .beforeRequest({
+        name: "add-token",
+        handler: arg => "" as const;
+    })
+    .beforeRequest({
+        name: "add-user",
+        handler
+    })
     .addRoute({
         v: new NormalRouting("/post/:postId"),
         hooks: { //! its importnat to place hooks before handler

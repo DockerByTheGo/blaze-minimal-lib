@@ -85,6 +85,7 @@ export class RouterObject<
 
     }
 
+
     static empty() {
 
         return new RouterObject(
@@ -112,10 +113,13 @@ export class RouterObject<
 }
 
 
-function NormaRouingT<T extends RouterObject<RouterHooks, RouteTree>>(handler: (arg: T["routerHooks"]["beforeRequest"]["TGetLastHookReturnType"]) => unknown): NormalRouteHandler<
-    T["routerHooks"]["beforeRequest"]["TGetLastHookReturnType"],
-    { body: string }
-> {
+function NormaRouingT<
+    T extends RouterObject<RouterHooks, RouteTree>
+>(
+    handler: (arg: T["routerHooks"]["beforeRequest"]["TGetLastHookReturnType"]) => unknown): NormalRouteHandler<
+        T["routerHooks"]["beforeRequest"]["TGetLastHookReturnType"],
+        { body: string }
+    > {
 
     return new NormalRouteHandler(handler)
 
