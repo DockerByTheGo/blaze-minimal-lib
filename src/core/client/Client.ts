@@ -1,9 +1,10 @@
+import { IRouteHandler } from "../server/router/routeHandler";
 import { RouteTree } from "../server/router/types";
 import { CleintBuilderConstructors } from "./client-builder/constructors";
 
 
 export type Routes<R extends RouteTree> = {
-    send<Route extends keyof R>(route: Route): R[Route]["getLCientRepresentation"]
+    send<Route extends keyof R>(route: Route): R[Route] extends IRouteHandler<any, any> ? R[Route] ["getLCientRepresentation"] : Routes<R[Route]>
 }
 
 class ClientConstructors {
@@ -21,7 +22,7 @@ export class Client<TRouteTree extends RouteTree> {
 
     public constructor(routes: TRouteTree) {
         this.routes = {
-            send: <Route extends keyof TRouteTree>(route: Route): TRouteTree[Route]["getLCientRepresentation"] => {
+            send: <Route extends keyof TRouteTree>(route: Route): TRouteTree[Route] extends IRouteHandler<any, any> ?  TRouteTree[Route]["getLCientRepresentation"] :  => {
                 // In a real client, this method would construct and send an HTTP request
                 // based on the `TRouteTree[Route]["getLCientRepresentation"]` definition
                 // and return a Promise of the response.

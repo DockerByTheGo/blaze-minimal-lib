@@ -323,11 +323,9 @@ you can plug a blazy app into existing express app and it will just work, that w
 | 14  | Laravel                       | Middleware framework        | Deno-native, strongly typed                           |     |
 | 17  | **SuperTokens**               | Auth framework              | TypeScript-first, backend identity management         |     |
 | 18  | **Serverless Framework (TS)** | Infra-as-code               | Backend infra and logic with TS support               |     |
-| 19  | hapi                          | GraphQL servers             | TS-friendly GraphQL server tools                      |     |
 |     | adonis js                     |                             |                                                       |     |
 |     | Tanstack router               |                             |                                                       |     |
-|     |                               |                             |                                                       |     |
-
+asp net 
 
 
 
@@ -340,4 +338,21 @@ https://www.instagram.com/reel/DLSAiolImTM/?igsh=NmI1aXNxanRvdWM=
 https://www.instagram.com/reel/DHykdrws7Re/?igsh=MWZkOGk2aHlyc3EzaA==
 
 
+
+
+
+
+Two versions of the framework 
+
+# Using the transformer
+
+
+In the transformer ypu get some of the features from blazy wjere we access ts types during runtime by adding some magic
+
+However you lose out on more granulat control in ts and hope that pur magic things do a good enough job. Ypu also lose on running your ts cofe directly woth dome runtimes like bun which doesnt support transformers or if ypu do want tp use bun to run your code you will have to xompile to js first
+
+
+# without using the transformer
+
+You get tye most granual control but your code will look more verbose
 

@@ -5,6 +5,39 @@ import { RouteTree } from "../../server/router/types";
 import { ifAny } from "@blazyts/better-standard-library";
 import { Hook, Hooks } from "../../types/Hooks/Hooks";
 
+
+export const CleintBuilderConstructors = {
+
+    empty() {
+        return new ClientBuilder(
+            {
+                "afterReceive": Hooks.empty(),
+                "beforeSend": Hooks.empty(),
+                "onErrored": Hooks.empty()
+            },
+            {
+                retries: 3,
+            },
+            {}
+        );
+    },
+
+    fromRouteTree(router: RouteTree) {
+        return new ClientBuilder(
+            {
+                "afterReceive": Hooks.empty(),
+                "beforeSend": Hooks.empty(),
+                "onErrored": Hooks.empty()
+            },
+            {
+                retries: 3,
+            },
+            router
+        );
+    }
+
+}
+
 export class ClientBuilder<
     TRouter extends RouteTree,
     THooks extends ClientHooks,
@@ -55,7 +88,8 @@ export class ClientBuilder<
 
     }
 
-    
+
+
     static empty() {
         return new ClientBuilder(
             {

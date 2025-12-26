@@ -1,9 +1,12 @@
 import { URecord } from "@blazyts/better-standard-library"
+import { Path } from "../server/router/utils/path/Path"
 
-class RequestObjectHelper<
+// here we are doing transformation on demand so that we wrap the core object around this helers inly when needed to not hurt performace 
+
+export class RequestObjectHelper<
 TBodySchema extends URecord,
 THeaders extends URecord,
-TPath extends String
+TPath extends string
 > {
     constructor(
         private readonly v: {
@@ -25,4 +28,10 @@ TPath extends String
             }
         }
     }
+
+    get path(): Path<TPath> {
+        return
+    }
+
+
 }
