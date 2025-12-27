@@ -6,20 +6,19 @@ This is the core of the project which is more of a lib than a framework.
 
 Add Winter.js support so that it can run on any framework.
 
-
 # Router
 
 ## Making responses
 
 ### respondWith(e: Response)
 
-by default the response is the return value of the handler. However you can use the ctx object to make a response and send it without returning from the function 
+by default the response is the return value of the handler. However you can use the ctx object to make a response and send it without returning from the function
 
-Note: if you return something from the handler with ctx.respondWith it wont be sent and so it wont go through afterResponse hooks however it will be passed to afterHandler Hook 
+Note: if you return something from the handler with ctx.respondWith it wont be sent and so it wont go through afterResponse hooks however it will be passed to afterHandler Hook
 
 ```ts
 () => {
-  
+
   ctx.respondWith(new Response("Hello World"))
 
   // the rest of the code will still exexcute
@@ -28,15 +27,15 @@ Note: if you return something from the handler with ctx.respondWith it wont be s
 }
 ```
 
-Note: when using ctx.respondWith even if you return a response it wont be send and also the moment you call respondWith the afterResponse hook will fire not waiting for the handler to finish  and running with whatever the respondWith was passed
+Note: when using ctx.respondWith even if you return a response it wont be send and also the moment you call respondWith the afterResponse hook will fire not waiting for the handler to finish and running with whatever the respondWith was passed
 
-### predefined behaviour for retuns 
+### predefined behaviour for retuns
 
 return undefined -> 204 No Content
 return null -> 404 Not Found
 return string | object | array | number | boolean -> 200 OK and whatever you have returned
 
-for example 
+for example
 
 ```ts
 app.get("/idk", handler => {
@@ -50,46 +49,36 @@ Note: this is not true for hooks. To return a Response from a hook you need to e
 
 if you do not want any kind of return to be the response you can disable implicit response
 
-#### setting it 
+#### setting it
 
-app.config.ImplicitReponse.set(boolean) 
+app.config.ImplicitReponse.set(boolean)
 
 app.config.ImplicitReponse.disable()
 
 app.config.ImplicitReponse.enable()
 
-
-
-
-and this will require implicitely defining responses like 
+and this will require implicitely defining responses like
 
 ```ts
-app.get("/idk", handler => {
-  return Response.successfull("idk")
-  // or 
-  return Response.new("idk", 200)
+app.get("/idk", (handler) => {
+  return Response.successfull("idk");
+  // or
+  return Response.new("idk", 200);
 }, {
-	responses: {
-		status: 200,
-		body: "idk"
-	}
-})
+  responses: {
+    status: 200,
+    body: "idk"
+  }
+});
 ```
 
 ### afterHandler (({ctx: Context, result: any}) => any)
 
-this is a hook which operates with whatever the handler returns  no matter if it is a respnse or not and also recieves the context which the handler had access to. Atleast thats the first hook in the afterHandler stack after it you decide on the context. If no response has been retirned the after Respons can return a response and will trigger the afterRsponse hooks, also after it returns a Response (you can use respondWith here too) its return is still fed into the next hook.
-
-
-
+this is a hook which operates with whatever the handler returns no matter if it is a respnse or not and also recieves the context which the handler had access to. Atleast thats the first hook in the afterHandler stack after it you decide on the context. If no response has been retirned the after Respons can return a response and will trigger the afterRsponse hooks, also after it returns a Response (you can use respondWith here too) its return is still fed into the next hook.
 
 ---
 
-
-
-Note: if ImplicitResponse is enabled and we do not return any response from our handler that is of type response the afterHandler hook (not to be confused with the afterResponse hook) will follow and if in any of them there is  a respose it will be sent. This can be helpful in times where you have simple endpoints that just do something and the return is the same for all of them e,g, 204 No Content and so you can do something liek this. If ImplicitResponse is disabled and you do not return anything from a function since js returns undefined from void function it will return 204 No Content. If a response is returned but afterHandle
-
-
+Note: if ImplicitResponse is enabled and we do not return any response from our handler that is of type response the afterHandler hook (not to be confused with the afterResponse hook) will follow and if in any of them there is a respose it will be sent. This can be helpful in times where you have simple endpoints that just do something and the return is the same for all of them e,g, 204 No Content and so you can do something liek this. If ImplicitResponse is disabled and you do not return anything from a function since js returns undefined from void function it will return 204 No Content. If a response is returned but afterHandle
 
 ```ts
 app.afterHandler(ctx => Response.new("ok", 200))
@@ -99,47 +88,42 @@ app.afterHandler(ctx => Response.new("ok", 200))
 
 ```
 
+Here is a pseudo code which ilustrates this
 
-Here is a pseudo code which ilustrates this 
-
-```ts 
+```ts
 beforeHandler().map(result => {
   result.isResponse
    ?  sendResponse(res)
    :  handler(res),map(result =>
-      ctx.confg.NoImplicitResponse.get() 
-      ? result.isResponse 
+      ctx.confg.NoImplicitResponse.get()
+      ? result.isResponse
         ? sendResponse(result) /* internally sets the ctx.response object to the sent response */ -> afterResponse and afterHandler Hooks fire  -> afterHandlerHooks.forEach(hook => hook(result).ifNoResponseIsSent(result => result.isResponse ? sendResponse(result) : result))
         : afterHandlerHooks.forEach(hook => hook(result).ifNoResponseIsSent(result => result.isResponse ? sendResponse(result) : result))
       : result
-   ) 
-  
+   )
 
 })
 ```
-
-
 
 ### how it works
 
 after a handler finishes its request ctx req object is checked for the didSendResponse flag and if it is trye we simply do not return the returned from the handler as a response
 
+## Streaming
 
-## Streaming 
 Built in support for exposing streaming endpoints with tons of utilites. Like this but better, cleaner and with more features https://hono.dev/docs/helpers/streaming
-
 
 ## adding routes
 
 ```ts
-app.get("/idk", handler, additionalConfig) // all validators and any additinal context you might pass so that you later recieve it in the onRegistedRoute hook 
+app.get("/idk", handler, additionalConfig); // all validators and any additinal context you might pass so that you later recieve it in the onRegistedRoute hook
 ```
 
 If you have the middleware that you want to execute, write the code above the handler.
 
 ```ts
-app.use(logger())
-app.get('/foo', (c) => c.text('foo'))
+app.use(logger());
+app.get("/foo", c => c.text("foo"));
 ```
 
 If you want to have a "_fallback_" handler, write the code below the other handler.
@@ -155,53 +139,57 @@ GET /foo ---> `fallback`
 ```
 
 TODO: think how to incorporate this kind of logic in your existing pipes model
+
 ## abusing intelliense
 
-blaze automatically picks up dynamic params from your handler 
+blaze automatically picks up dynamic params from your handler
 
-"/:okko/hi" -> :okko will be accessible via intellisense 
+"/:okko/hi" -> :okko will be accessible via intellisense
 
+##### special convention
 
-##### special convention 
 if you dont wanna use a validator object for specifying types you can also a special convention from our framework in which using prefixes you specify path parameters
 
 ```ts
 app.get(
-"/ji/:koko",
-{"koko" /*btw you get intellisense here since koko is a path paramter*/: z.number()} , ctx => {
-	ctx.req.params.isFloat() // autoamitacally tuerned into a number obj 
-})
+  "/ji/:koko",
+  { koko /* btw you get intellisense here since koko is a path paramter */: z.number() },
+  (ctx) => {
+    ctx.req.params.isFloat(); // autoamitacally tuerned into a number obj
+  }
+);
 ```
 
-turns into 
+turns into
 
 ```ts
-app.get("/ji/:$koko",ctx => {
-	ctx.req.params.isFloat() // autoamitacally tuerned into a number obj 
-} )
+app.get("/ji/:$koko", (ctx) => {
+  ctx.req.params.isFloat(); // autoamitacally tuerned into a number obj
+});
 ```
 
-to indicate that koko is  a number we prefix with "$" and like that you will recieve koko as a number object directly 
+to indicate that koko is a number we prefix with "$" and like that you will recieve koko as a number object directly
 
 ###### others
+
 date -> (
 boolean -> ^
-
 
 ## Request object
 
 Wraps around the basic.request object but adds utilitilies like making optional query params follow the option pattern
 
-### Api 
+### Api
 
 #### getRaw
+
 returns the raw http object following the convention establised by express js
 
 ## Additional things
 
 ### Catch all route vs global router hook
 
-Since there were a lot of questions about when to use a catch all route 
+Since there were a lot of questions about when to use a catch all route
 
 which is the following
 
@@ -211,22 +199,17 @@ vs a global hook handler
 
 ---
 
-well the purpose of hooks is to accomodate existing routes, more like performing side effects or transforming data so that the route handler can do its job e.g. you should not put business logic inside a global hook and you should put it in a catch all handler 
+well the purpose of hooks is to accomodate existing routes, more like performing side effects or transforming data so that the route handler can do its job e.g. you should not put business logic inside a global hook and you should put it in a catch all handler
 
-There is is also another thing which is a catch all router is final e,g. other routes wont execute however with a global hook they will. 
-
-
-
+There is is also another thing which is a catch all router is final e,g. other routes wont execute however with a global hook they will.
 
 # direct support for entites
 
 ## With name
 
-
 ## Without name
 
 It gets the name of the variable at compile time
-
 
 Syntax
 
@@ -235,10 +218,7 @@ Syntax
 
 ```
 
-
-
 # Service wrapping
-
 
 ### Service wrapping
 
@@ -251,17 +231,12 @@ Class User{
 add(){}
 }
 
-
-
-
-
 app
 .addService(new User())
 .block(app => app.ctx.services.user.onAdd(v => v))
 ```
 
-In this case it might not be much but if a service is lets say a microservice and you want to react to its events wothout directly writing anything its pretty cool 
-
+In this case it might not be much but if a service is lets say a microservice and you want to react to its events wothout directly writing anything its pretty cool
 
 Allows you to add a microservice to your app which you can later reference and receive a single source of thrurh
 
@@ -273,8 +248,7 @@ You can subscribe to them either from the glbal swrvices object
 
 Services.global.onAdded(name, object: intellisense using overloads)
 
-
-Or subscribing to specific one 
+Or subscribing to specific one
 
 services.[name].onQueried(method)
 services.[name].onInitialsed
@@ -282,12 +256,13 @@ services.[name].onInitialsed
 You can also hook into a specific method
 
 Services.[name].onCreate(data // again intellisensed) // inyellisense
+
 ### Why is it helpful
+
 Imagine the following scenario
 
 You have a general backend and a job runner which has a single endpoint for processing a video. In the traditional way you have to manually generate a client refernce it etc
 .. like that you just create the service using a `Service template` like the `HttpServer` where you define the structure and then you can include it using addService and you get intellisense on the service.
-
 
 When you pass your service to addService you not only receive your original service option object but also you can subscribe to its events.
 
@@ -303,16 +278,14 @@ app
 .use(c => c.services.user.onAdd(v => v))
 ```
 
-In this case it might not be much but if a service is lets say a microservice and you want to react to its events wothout directly writing anything its pretty cool 
-
-
+In this case it might not be much but if a service is lets say a microservice and you want to react to its events wothout directly writing anything its pretty cool
 
 # Express support
-you can plug a blazy app into existing express app and it will just work, that way you can gradually move to blazy from an existing express app 
 
+you can plug a blazy app into existing express app and it will just work, that way you can gradually move to blazy from an existing express app
 
+# tech to steal from
 
-# tech to steal from 
 | #   | Name                          | Type                        | Notes                                                 |     |
 | --- | ----------------------------- | --------------------------- | ----------------------------------------------------- | --- |
 | 2   | **NestJS**                    | Full-featured framework     | Built with and for TS, very popular for scalable apps |     |
@@ -325,34 +298,23 @@ you can plug a blazy app into existing express app and it will just work, that w
 | 18  | **Serverless Framework (TS)** | Infra-as-code               | Backend infra and logic with TS support               |     |
 |     | adonis js                     |                             |                                                       |     |
 |     | Tanstack router               |                             |                                                       |     |
-asp net 
 
-
+asp net
 
 # Future plans
-
-
 
 https://www.instagram.com/reel/DLSAiolImTM/?igsh=NmI1aXNxanRvdWM=
 
 https://www.instagram.com/reel/DHykdrws7Re/?igsh=MWZkOGk2aHlyc3EzaA==
 
-
-
-
-
-
-Two versions of the framework 
+Two versions of the framework
 
 # Using the transformer
-
 
 In the transformer ypu get some of the features from blazy wjere we access ts types during runtime by adding some magic
 
 However you lose out on more granulat control in ts and hope that pur magic things do a good enough job. Ypu also lose on running your ts cofe directly woth dome runtimes like bun which doesnt support transformers or if ypu do want tp use bun to run your code you will have to xompile to js first
 
-
 # without using the transformer
 
 You get tye most granual control but your code will look more verbose
-

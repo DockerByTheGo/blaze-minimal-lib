@@ -1,19 +1,21 @@
 {
-    "name": "@blazyts/backend-lib",
-    "type": "module",
-    "version": "1.0.0",
-    "module": "index.ts",
-    "peerDependencies": {
-        "typescript": "^5.0.0"
-    },
-    "dependencies": {
-        "ws": "^8.18.1"
-    },
-    "devDependencies": {
-        "@blazyts/better-standard-library": "workspace:*",
-        "@blazyts/http-types": "workspace:*",
-        "@types/bun": "latest",
-        "@types/ws": "^8.18.1",
-        "bun-types": "latest"
-    }
+  "name": "@blazyts/backend-lib",
+  "type": "module",
+  "version": "1.0.0",
+  "module": "index.ts",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^6.7.3",
+    "@blazyts/better-standard-library": "workspace:*",
+    "@blazyts/http-types": "workspace:*",
+    "@types/bun": "latest",
+    "@types/ws": "^8.18.1",
+    "bun-types": "latest",
+    "eslint": "^9.39.2"
+  }
 }

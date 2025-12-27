@@ -1,1 +1,1 @@
-export * from "./IRouteHandler"
+export * from "./IRouteHandler";

@@ -9,20 +9,20 @@ This document covers best practices and techniques for optimizing the performanc
 ### In-Memory Caching
 
 ```typescript
-import NodeCache from 'node-cache';
+import NodeCache from "node-cache";
 
 // Create a cache with 5-minute TTL
 const cache = new NodeCache({ stdTTL: 300 });
 
-app.get('/api/data', async (req) => {
-  const cacheKey = 'data-key';
+app.get("/api/data", async (req) => {
+  const cacheKey = "data-key";
   let data = cache.get(cacheKey);
-  
+
   if (!data) {
     data = await fetchDataFromDatabase();
     cache.set(cacheKey, data);
   }
-  
+
   return data;
 });
 ```
@@ -30,13 +30,13 @@ app.get('/api/data', async (req) => {
 ### HTTP Caching Headers
 
 ```typescript
-app.get('/static/data', (req, res) => {
+app.get("/static/data", (req, res) => {
   res.set({
-    'Cache-Control': 'public, max-age=3600', // 1 hour
-    'ETag': 'unique-hash',
-    'Last-Modified': new Date().toUTCString()
+    "Cache-Control": "public, max-age=3600", // 1 hour
+    "ETag": "unique-hash",
+    "Last-Modified": new Date().toUTCString()
   });
-  
+
   return { /* your data */ };
 });
 ```
@@ -47,18 +47,18 @@ app.get('/static/data', (req, res) => {
 
 ```typescript
 // Bad: N+1 query problem
-app.get('/users/posts', async () => {
+app.get("/users/posts", async () => {
   const users = await db.users.findMany();
   const usersWithPosts = await Promise.all(users.map(async user => ({
     ...user,
     posts: await db.posts.findMany({ where: { userId: user.id } })
   })));
-  
+
   return usersWithPosts;
 });
 
 // Good: Single query with join
-app.get('/users/posts', async () => {
+app.get("/users/posts", async () => {
   return db.users.findMany({
     include: {
       posts: true
@@ -82,7 +82,7 @@ const pool = new Pool({
 ## Response Compression
 
 ```typescript
-import compression from 'compression';
+import compression from "compression";
 
 // Enable gzip compression
 app.use(compression());
@@ -90,10 +90,10 @@ app.use(compression());
 // Or with options
 app.use(compression({
   level: 6, // Compression level (0-9)
-  threshold: '1kb', // Only compress responses larger than 1kb
+  threshold: "1kb", // Only compress responses larger than 1kb
   filter: (req) => {
     // Don't compress responses with this header
-    return !req.headers['x-no-compression'];
+    return !req.headers["x-no-compression"];
   }
 }));
 ```
@@ -103,8 +103,8 @@ app.use(compression({
 ### Horizontal Scaling
 
 ```typescript
-import cluster from 'cluster';
-import os from 'os';
+import cluster from "node:cluster";
+import os from "node:os";
 
 if (cluster.isPrimary) {
   // Fork workers
@@ -112,12 +112,13 @@ if (cluster.isPrimary) {
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
-  
-  cluster.on('exit', (worker, code, signal) => {
+
+  cluster.on("exit", (worker, code, signal) => {
     console.log(`Worker ${worker.process.pid} died`);
     cluster.fork(); // Replace the dead worker
   });
-} else {
+}
+else {
   // Worker process
   const app = new Blaze();
   // ... app setup ...
@@ -132,18 +133,18 @@ if (cluster.isPrimary) {
 ```typescript
 app.use((req, res, next) => {
   const start = process.hrtime();
-  
-  res.on('finish', () => {
+
+  res.on("finish", () => {
     const [seconds, nanoseconds] = process.hrtime(start);
     const duration = (seconds * 1e9 + nanoseconds) / 1e6; // in milliseconds
-    
-    metrics.timing('http_request_duration_ms', duration, {
+
+    metrics.timing("http_request_duration_ms", duration, {
       method: req.method,
       route: req.route?.path || req.path,
       status_code: res.statusCode
     });
   });
-  
+
   next();
 });
 ```
@@ -157,13 +158,14 @@ app.use((req, res, next) => {
 // Then use Chrome DevTools to take heap snapshots
 
 // Or use a memory leak detection library
-const memwatch = require('@airbnb/node-memwatch');
+const memwatch = require("@airbnb/node-memwatch");
 
-memwatch.on('leak', (info) => {
-  console.error('Memory leak detected:', info);
+memwatch.on("leak", (info) => {
+  console.error("Memory leak detected:", info);
   // Take a heap snapshot
-  const heapdump = require('heapdump');
-  heapdump.writeSnapshot(`./heapdump-${Date.now()}.heapsnapshot`);n});
+  const heapdump = require("heapdump");
+  heapdump.writeSnapshot(`./heapdump-${Date.now()}.heapsnapshot`); n;
+});
 ```
 
 ## Best Practices
@@ -175,6 +177,7 @@ memwatch.on('leak', (info) => {
 5. **Monitor Performance**: Continuously track and optimize
 
 ## Next Steps
+
 - Learn about [TypeScript Support](../typescript-support/main.md)
 - Explore [Testing](../testing/main.md) strategies
 - See [Deployment](../deployment/main.md) best practices

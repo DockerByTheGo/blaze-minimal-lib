@@ -1,7 +1,6 @@
+### beforeStart
 
-### beforeStart 
 runs before the server starts listening for connections
-
 
 ### `afterStart`
 
@@ -11,9 +10,9 @@ Runs after the server has started and is accepting connections.
 app.hooks.afterStart(() => {
   const { port } = app.address();
   logger.info(`Server running on port ${port}`);
-  
+
   // Register with service discovery
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     registerWithServiceDiscovery(port);
   }
 });
@@ -26,17 +25,16 @@ Runs when the application is about to shut down.
 ```typescript
 app.hooks.beforeShutdown(async (signal) => {
   logger.info(`Received ${signal}, shutting down gracefully...`);
-  
+
   // Close database connections
   await closeDatabaseConnections();
-  
+
   // Complete any pending requests
   await app.closeConnections();
-  
-  logger.info('Cleanup complete');
+
+  logger.info("Cleanup complete");
 });
 ```
-
 
 ### `onError`
 
@@ -53,14 +51,14 @@ app.hooks.onError((error, context) => {
     requestId: context?.requestId,
     path: context?.req?.url
   });
-  
+
   // Don't leak internal errors in production
-  const isProduction = process.env.NODE_ENV === 'production';
-  
+  const isProduction = process.env.NODE_ENV === "production";
+
   return {
     status: error.status || 500,
     body: {
-      error: isProduction ? 'Internal Server Error' : error.message,
+      error: isProduction ? "Internal Server Error" : error.message,
       ...(!isProduction && { stack: error.stack })
     }
   };

@@ -10,13 +10,13 @@ Create reusable hook factories for common patterns:
 
 ```typescript
 function createAuthHook(requiredRole?: string) {
-  return createHook('auth', async (context, next) => {
+  return createHook("auth", async (context, next) => {
     const user = await authService.verify(context.request.token);
-    
+
     if (requiredRole && user.role !== requiredRole) {
-      throw new Error('Insufficient permissions');
+      throw new Error("Insufficient permissions");
     }
-    
+
     return next({
       ...context,
       user
@@ -25,7 +25,7 @@ function createAuthHook(requiredRole?: string) {
 }
 
 // Usage
-app.use(createAuthHook('admin'));
+app.use(createAuthHook("admin"));
 ```
 
 ## 2. Error Boundary Hooks
@@ -37,7 +37,8 @@ function withErrorBoundary(hook) {
   return createHook(`error-boundary-${hook.name}`, async (context, next) => {
     try {
       return await hook(context, next);
-    } catch (error) {
+    }
+    catch (error) {
       console.error(`Error in ${hook.name}:`, error);
       throw error; // Re-throw or handle as needed
     }
@@ -56,7 +57,7 @@ function withMetrics(hook) {
     const result = await hook(context, next);
     const [seconds, nanoseconds] = process.hrtime(start);
     const duration = seconds * 1000 + nanoseconds / 1e6;
-    
+
     metrics.timing(`hook.${hook.name}`, duration);
     return result;
   });
@@ -70,7 +71,7 @@ Dynamically enable/disable hooks based on context:
 ```typescript
 function conditionalHook(condition, hook) {
   return createHook(`conditional-${hook.name}`, (context, next) => {
-    if (typeof condition === 'function' ? condition(context) : condition) {
+    if (typeof condition === "function" ? condition(context) : condition) {
       return hook(context, next);
     }
     return next(context);
@@ -79,7 +80,7 @@ function conditionalHook(condition, hook) {
 
 // Usage
 app.use(conditionalHook(
-  (ctx) => ctx.request.path.startsWith('/api'),
+  ctx => ctx.request.path.startsWith("/api"),
   someHook
 ));
 ```
@@ -90,14 +91,14 @@ Create reusable transformation hooks:
 
 ```typescript
 function transformResponse(transformer) {
-  return createHook('transform-response', async (context, next) => {
+  return createHook("transform-response", async (context, next) => {
     const response = await next(context);
     return transformer(response);
   });
 }
 
 // Usage
-app.use(transformResponse((response) => ({
+app.use(transformResponse(response => ({
   ...response,
   data: response.data ? JSON.parse(response.data) : null
 })));
@@ -110,24 +111,24 @@ Add caching to expensive operations:
 ```typescript
 function withCache(hook, { ttl = 60000 } = {}) {
   const cache = new Map();
-  
+
   return createHook(`cached-${hook.name}`, async (context, next) => {
     const cacheKey = JSON.stringify({
       name: hook.name,
       url: context.request.url,
       // Add other relevant context properties
     });
-    
+
     const cached = cache.get(cacheKey);
     const now = Date.now();
-    
+
     if (cached && now - cached.timestamp < ttl) {
       return cached.result;
     }
-    
+
     const result = await hook(context, next);
     cache.set(cacheKey, { result, timestamp: now });
-    
+
     return result;
   });
 }
@@ -142,5 +143,6 @@ function withCache(hook, { ttl = 60000 } = {}) {
 5. **Test Thoroughly**: Write tests for your hooks in isolation
 
 ## Next Steps
+
 - Review [piped hooks](./piped.md) for composition patterns
 - Explore [lifecycle hooks](./lifecycle.md) for application-wide events

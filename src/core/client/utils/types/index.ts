@@ -1,1 +1,1 @@
-export * from "./isSuccess"
+export * from "./isSuccess";

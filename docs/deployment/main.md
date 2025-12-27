@@ -30,11 +30,11 @@ JWT_SECRET=your-secret-key
 
 ```typescript
 // config/index.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().default('3000'),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  PORT: z.string().default("3000"),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url().optional(),
   JWT_SECRET: z.string().min(32),
@@ -74,7 +74,7 @@ CMD ["node", "dist/index.js"]
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -89,7 +89,7 @@ services:
       - db
       - redis
     restart: unless-stopped
-    
+
   db:
     image: postgres:13-alpine
     environment:
@@ -98,7 +98,7 @@ services:
       - POSTGRES_DB=app
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    
+
   redis:
     image: redis:6-alpine
     command: redis-server --appendonly yes
@@ -115,16 +115,19 @@ volumes:
 ### AWS (Elastic Beanstalk)
 
 1. Install EB CLI:
+
    ```bash
    pip install awsebcli
    ```
 
 2. Initialize EB:
+
    ```bash
    eb init -p node.js my-app
    ```
 
 3. Create environment:
+
    ```bash
    eb create my-app-production --single
    ```
@@ -137,11 +140,13 @@ volumes:
 ### Heroku
 
 1. Create a Procfile:
+
    ```
    web: node dist/index.js
    ```
 
 2. Deploy:
+
    ```bash
    heroku create
    git push heroku main
@@ -155,6 +160,7 @@ volumes:
 ### Vercel
 
 1. Create `vercel.json`:
+
    ```json
    {
      "version": 2,
@@ -193,24 +199,24 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
-          
+          node-version: "18"
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build
         run: npm run build
-        
+
       - name: Run tests
         run: npm test
-        
+
       - name: Deploy to production
         if: github.ref == 'refs/heads/main'
         run: |
@@ -223,18 +229,18 @@ jobs:
 ### Application Logs
 
 ```typescript
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports } from "winston";
 
 const logger = createLogger({
-  level: 'info',
+  level: "info",
   format: format.combine(
     format.timestamp(),
     format.json()
   ),
   transports: [
     new transports.Console(),
-    new transports.File({ filename: 'error.log', level: 'error' }),
-    new transports.File({ filename: 'combined.log' })
+    new transports.File({ filename: "error.log", level: "error" }),
+    new transports.File({ filename: "combined.log" })
   ]
 });
 
@@ -247,7 +253,7 @@ app.use((err, req, res, next) => {
     method: req.method,
     ip: req.ip
   });
-  
+
   next(err);
 });
 ```
@@ -261,5 +267,6 @@ app.use((err, req, res, next) => {
 5. **Use Process Manager**: Like PM2 for Node.js applications
 
 ## Next Steps
+
 - Learn about [Performance](../performance/main.md) optimizations
 - Explore [Examples](../examples/main.md) for practical implementations

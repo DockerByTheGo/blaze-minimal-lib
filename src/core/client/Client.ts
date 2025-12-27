@@ -78,19 +78,3 @@ const client = new Client(myRouteDefinitions);
 // Getting the client representation for a specific route
 
 const userByIdRouteClientRep = client.routes.send("/users/:id");
-console.log("User by ID Route Client Representation:", userByIdRouteClientRep);
-
-// In a real scenario, you might have a utility function or another method
-// on the client that takes this representation and makes the actual request.
-// For example:
-/*
-async function executeRequest<T>(clientRep: { method: string, path: string, params?: any }): Promise<T> {
-    // ... actual HTTP request logic ...
-    console.log(`Executing ${clientRep.method} request to ${clientRep.path}`);
-    return {} as T; // Mock return
-}
-
-// And then use it like:
-const users = await executeRequest<MyRouteTree["/users"]["getLCientRepresentation"]["response"]>(usersRouteClientRep);
-console.log("Fetched users:", users);
-*/

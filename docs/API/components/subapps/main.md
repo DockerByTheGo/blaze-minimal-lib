@@ -22,22 +22,22 @@ think of your subapps less of a router and more like a bundle of operations you 
 ## Basic Usage
 
 ```typescript
-import { Blaze } from '@blazy/http-core';
+import { Blaze } from "@blazy/http-core";
 
 // Create a subapp
 const authApp = new Blaze();
 
-authApp.get('/login', (req) => {
+authApp.get("/login", (req) => {
   // Handle login
 });
 
-authApp.get('/register', (req) => {
+authApp.get("/register", (req) => {
   // Handle registration
 });
 
 // Mount the subapp
 const mainApp = new Blaze();
-mainApp.use('/auth', authApp);
+mainApp.use("/auth", authApp);
 ```
 
 ## Scoping
@@ -46,16 +46,15 @@ By default, subapps are scoped to their mount point:
 
 ```typescript
 // This route will be available at /api/v1/users
-mainApp.use('/api/v1', usersApp);
+mainApp.use("/api/v1", usersApp);
 
 // This route will be available at /api/v2/users
-mainApp.use('/api/v2', usersApp);
+mainApp.use("/api/v2", usersApp);
 ```
 
-### Overwriting default scope 
+### Overwriting default scope
 
 to overwrite what the default scope is you can change the `config.defaultScope.set("local" | "global" | "inheriting")`
-
 
 ## Configuration
 
@@ -82,6 +81,7 @@ const adminApp = new Blaze({
 4. **Documentation**: Document each subapp's purpose and API
 
 ## Next Steps
+
 - Learn about [App API](../app-api/main.md)
 - Explore [Configuration](../config/main.md) options
 - See [Examples](../../examples/main.md) for practical implementations

@@ -1,27 +1,22 @@
 ## macros
 
-Macros are a way to design reusable bundles of hooks with typesafety and have them as part of your app 
+Macros are a way to design reusable bundles of hooks with typesafety and have them as part of your app
 
+Example
 
-
-Example 
-
-
-imagine we have two endpoints and each of them needs a token for auth, however it is of different length for each and in route one it is a number the other is a string. Normally without macros we would do it like this 
+imagine we have two endpoints and each of them needs a token for auth, however it is of different length for each and in route one it is a number the other is a string. Normally without macros we would do it like this
 
 ```ts
 app.post("/create", ({req: {headers: {adminToken}}}) => {...}, {
   beforeRequest: guard({req: {headers: adminToken: "string"}})
 })
 
-
 app.post("/create-2", ({req: {headers: {adminToken}}}) => {...}, {
   beforeRequest: guard({req: {headers: adminToken: "number"}})
 })
 ```
 
-if you ask me thats a lot of redundancy so lets see how macors would help us with this 
-
+if you ask me thats a lot of redundancy so lets see how macors would help us with this
 
 ```ts
 app.addMacro({
@@ -35,12 +30,11 @@ app.addMacro({
 })
 
 app.post("/create", (req: {headers: {adminToken} /*  yup it even adds intellisense so that you get autocomplete on all your macors */}) => {...}, {
-  ensureAdminToken: z.string() 
+  ensureAdminToken: z.string()
 })
 
-
 app.post("/create", (req: {headers: {adminToken} /*  yup it even adds intellisense */}) => {...}, {
-  ensureAdminToken: z.number() 
+  ensureAdminToken: z.number()
 })
 
 ```
@@ -51,7 +45,7 @@ ok that seems cool but why i dont make it into just object which i can pass
 const block = ({arg: Either<number, string>, ctx: BaseAppContext}) => {
   return {
     beforeRequest: guard({req: {headers: {adminToken: arg}}})
-}  
+}
 
 app.post("/create", (req: {headers: {adminToken} }) => {...}, {
   ...(block(z.number()))
@@ -63,17 +57,16 @@ app.post("/create", (req: {headers: {adminToken} }) => {...}, {
 well thats cecrtainly viable but you lose two things
 
 1. context types
- 
+
 ```ts
 app.addMacro(({arg, ctx}) => ....)
 
 app
 ```
 
- you get access to ctx with all of services with type safety 
+you get access to ctx with all of services with type safety
 
- without chaining it but instead making it in some variable you lose the type info and will have to either cope with it or get the type of your app at the time and do some ugly shit like this
-
+without chaining it but instead making it in some variable you lose the type info and will have to either cope with it or get the type of your app at the time and do some ugly shit like this
 
 ```ts
 const g = app
@@ -83,12 +76,10 @@ const g = app
 
 type app = typeof app
 
-
 const macro = ({arg: Either<number, string>, ctx: app["context"]}) => {
   return {
     beforeRequest: guard({req: {headers: {adminToken: arg}}})
-}  
-
+}
 
 g.method()
 g.method()
@@ -101,8 +92,7 @@ this is ugly to say the least and you get no benefit from it either compared to 
 
 2. hook support
 
-
-just like any other thing when you pass something to the app you will most likely get hooks for it. Here it is the case for it again we get hooks. 
+just like any other thing when you pass something to the app you will most likely get hooks for it. Here it is the case for it again we get hooks.
 
 - onExecuted({nameOfTheMacro: str, passedContext: {arg: YourSchema, AppContext}})
 - onAdded({nameOfTheMacro: str, passedContext: {arg: YourSchema, AppContext}})

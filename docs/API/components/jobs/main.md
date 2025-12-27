@@ -9,10 +9,10 @@ Jobs in @blazy/http-core provide a way to run background tasks, scheduled jobs, 
 ### Basic Job
 
 ```typescript
-import { Job } from '@blazy/http-core/jobs';
+import { Job } from "@blazy/http-core/jobs";
 
 const sendWelcomeEmail = new Job({
-  name: 'send-welcome-email',
+  name: "send-welcome-email",
   handler: async (payload: { userId: string }) => {
     const user = await userService.getUser(payload.userId);
     await emailService.sendWelcomeEmail(user);
@@ -22,16 +22,18 @@ const sendWelcomeEmail = new Job({
 });
 
 // Queue the job
-await sendWelcomeEmail.dispatch({ userId: '123' });
+await sendWelcomeEmail.dispatch({ userId: "123" });
 ```
 
 ### Scheduled Jobs
 
 ```typescript
-import { Job, schedule } from '@blazy/http-core/jobs';
+import { Job, schedule } from "@blazy/http-core/jobs";
+// Start the scheduler
+import { startScheduler } from "@blazy/http-core/jobs";
 
 const cleanupJob = new Job({
-  name: 'cleanup-old-data',
+  name: "cleanup-old-data",
   schedule: schedule.everyDayAt(3, 0), // 3 AM daily
   handler: async () => {
     // Delete records older than 30 days
@@ -40,9 +42,6 @@ const cleanupJob = new Job({
     });
   }
 });
-
-// Start the scheduler
-import { startScheduler } from '@blazy/http-core/jobs';
 startScheduler([cleanupJob]);
 ```
 
@@ -51,45 +50,45 @@ startScheduler([cleanupJob]);
 ### Using Bull/Redis
 
 ```typescript
-import { Queue } from 'bull';
-import { createQueue } from '@blazy/http-core/jobs/queue';
+import { createQueue } from "@blazy/http-core/jobs/queue";
+import { Queue } from "bull";
 
 // Create a queue
-const emailQueue = createQueue('emails', {
+const emailQueue = createQueue("emails", {
   redis: {
     host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT)
+    port: Number.parseInt(process.env.REDIS_PORT)
   }
 });
 
 // Define job processor
-emailQueue.process('send-welcome-email', async (job) => {
+emailQueue.process("send-welcome-email", async (job) => {
   const { userId } = job.data;
   const user = await userService.getUser(userId);
   await emailService.sendWelcomeEmail(user);
 });
 
 // Add job to queue
-await emailQueue.add('send-welcome-email', { userId: '123' });
+await emailQueue.add("send-welcome-email", { userId: "123" });
 ```
 
 ## Job Events
 
 ```typescript
-const job = sendWelcomeEmail.dispatch({ userId: '123' });
+const job = sendWelcomeEmail.dispatch({ userId: "123" });
 
 job
-  .on('started', () => {
-    console.log('Job started');
+  .on("started", () => {
+    console.log("Job started");
   })
-  .on('progress', (progress) => {
+  .on("progress", (progress) => {
     console.log(`Progress: ${progress}%`);
   })
-  .on('completed', (result) => {
-    console.log('Job completed:', result);
+  .on("completed", (result) => {
+    console.log("Job completed:", result);
   })
-  .on('failed', (error) => {
-    console.error('Job failed:', error);
+  .on("failed", (error) => {
+    console.error("Job failed:", error);
   });
 ```
 
@@ -99,7 +98,7 @@ job
 // Log all job executions
 app.jobs.use(async (job, next) => {
   const start = Date.now();
-  
+
   try {
     logger.info(`Starting job: ${job.name}`, { jobId: job.id });
     const result = await next();
@@ -108,7 +107,8 @@ app.jobs.use(async (job, next) => {
       duration: Date.now() - start
     });
     return result;
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(`Job failed: ${job.name}`, {
       jobId: job.id,
       error: error.message,
@@ -128,6 +128,7 @@ app.jobs.use(async (job, next) => {
 5. **Testing**: Test your jobs in isolation
 
 ## Next Steps
+
 - Learn about [Router](../router/main.md) for request routing
 - Explore [Request Lifecycle](../request-lifecycle/main.md)
 - See [Examples](../examples/main.md) for practical implementations

@@ -1,5 +1,5 @@
-import { Port } from "../../../utils/Port";
+import type { Port } from "../../../utils/Port";
 
-export interface ITransportLayerHandler{
-    acceptConnections(port: Port): void
-}
+export type ITransportLayerHandler = {
+  acceptConnections: (port: Port) => void;
+};

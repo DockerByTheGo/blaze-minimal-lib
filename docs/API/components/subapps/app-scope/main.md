@@ -10,8 +10,8 @@ App Scope in @blazy/http-core provides a way to manage the visibility and lifecy
 
 ```typescript
 // Anywhere in your application
-app.set('config', { apiKey: '123' });
-const config = app.get('config');
+app.set("config", { apiKey: "123" });
+const config = app.get("config");
 ```
 
 ### Request Scope
@@ -37,11 +37,11 @@ export const userService = {
     if (!this.cache) {
       this.cache = new Map();
     }
-    
+
     if (this.cache.has(id)) {
       return this.cache.get(id);
     }
-    
+
     const user = await db.users.findUnique({ where: { id } });
     this.cache.set(id, user);
     return user;
@@ -57,13 +57,13 @@ export const userService = {
 // services/emailService.ts
 class EmailService {
   constructor(private readonly config: Config) {}
-  
+
   async sendWelcomeEmail(user: User) {
     // Use injected config
     return await this.sendEmail({
       to: user.email,
       from: this.config.emailFrom,
-      subject: 'Welcome!',
+      subject: "Welcome!",
       text: `Hello ${user.name}!`
     });
   }
@@ -71,14 +71,14 @@ class EmailService {
 
 // app.ts
 const emailService = new EmailService({
-  emailFrom: 'noreply@example.com'
+  emailFrom: "noreply@example.com"
 });
 
-app.set('emailService', emailService);
+app.set("emailService", emailService);
 
 // In a route handler
-app.get('/welcome/:userId', async (req) => {
-  const emailService = req.app.get('emailService');
+app.get("/welcome/:userId", async (req) => {
+  const emailService = req.app.get("emailService");
   const user = await userService.getUser(req.params.userId);
   await emailService.sendWelcomeEmail(user);
   return { success: true };
@@ -91,20 +91,20 @@ app.get('/welcome/:userId', async (req) => {
 // Create a scoped container for each request
 app.use((req, res, next) => {
   req.container = new Container();
-  
+
   // Register request-scoped dependencies
-  req.container.register('userRepository', {
+  req.container.register("userRepository", {
     useClass: UserRepository,
-    scope: 'request'
+    scope: "request"
   });
-  
+
   next();
 });
 
 // In a route handler
-app.get('/users/:id', async (req) => {
+app.get("/users/:id", async (req) => {
   // Gets a new instance for each request
-  const userRepo = req.container.resolve('userRepository');
+  const userRepo = req.container.resolve("userRepository");
   return await userRepo.findById(req.params.id);
 });
 ```
@@ -114,7 +114,7 @@ app.get('/users/:id', async (req) => {
 ### AsyncLocalStorage for Context
 
 ```typescript
-import { AsyncLocalStorage } from 'async_hooks';
+import { AsyncLocalStorage } from "node:async_hooks";
 
 const context = new AsyncLocalStorage<RequestContext>();
 
@@ -124,7 +124,7 @@ app.use((req, res, next) => {
     userId: req.user?.id,
     startTime: Date.now()
   };
-  
+
   return context.run(store, () => {
     return next();
   });
@@ -134,7 +134,7 @@ app.use((req, res, next) => {
 function getRequestContext(): RequestContext {
   const store = context.getStore();
   if (!store) {
-    throw new Error('No active request context');
+    throw new Error("No active request context");
   }
   return store;
 }
@@ -145,7 +145,7 @@ class Logger {
     const { requestId, userId } = getRequestContext();
     console.log(JSON.stringify({
       timestamp: new Date().toISOString(),
-      level: 'info',
+      level: "info",
       requestId,
       userId,
       message,
@@ -164,6 +164,7 @@ class Logger {
 5. **Be Mindful of Memory Leaks**: Especially with long-lived objects
 
 ## Next Steps
+
 - Learn about [Jobs](../jobs/main.md) for background processing
 - Explore [Router](../router/main.md) for request routing
 - See [Examples](../examples/main.md) for practical implementations

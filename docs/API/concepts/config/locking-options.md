@@ -18,8 +18,8 @@ Configuration locking in @blazy/http-core provides a way to prevent accidental o
 ```typescript
 app.use({
   database: {
-    host: { value: 'localhost', isLocked: true },
-    port: 3000  // This remains unlocked and can be changed
+    host: { value: "localhost", isLocked: true },
+    port: 3000 // This remains unlocked and can be changed
   }
 });
 ```
@@ -27,11 +27,11 @@ app.use({
 ### Locking Entire Configuration
 
 ```typescript
-import { Lock } from '@blazy/utils';
+import { Lock } from "@blazy/utils";
 
 app.use(Lock({
   // All these settings will be locked
-  environment: 'production',
+  environment: "production",
   port: 3000,
   // ...
 }));
@@ -47,8 +47,8 @@ app.use(Lock({
 
 ```typescript
 app
-  .use({ database: { host: { value: 'localhost', isLocked: true } } })
-  .use({ database: { host: 'new-host' } }); // TypeScript error: Type 'string' is not assignable to type 'never'
+  .use({ database: { host: { value: "localhost", isLocked: true } } })
+  .use({ database: { host: "new-host" } }); // TypeScript error: Type 'string' is not assignable to type 'never'
 ```
 
 ## Best Practices
@@ -59,6 +59,7 @@ app
 - Use locking judiciously - overuse can make testing and debugging more difficult
 
 ## Next Steps
+
 - Learn about [runtime safety](./runtime-safety.md)
 - Understand [type safety](./type-safety.md) with locked options
 - Explore [configuration scopes](../scope.md) for more granular control

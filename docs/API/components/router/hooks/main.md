@@ -1,4 +1,3 @@
-
 ### `beforeRequest`
 
 Runs before each request is processed by route handlers.
@@ -7,10 +6,10 @@ Runs before each request is processed by route handlers.
 app.hooks.beforeRequest((context) => {
   // Add request start time
   context.startTime = Date.now();
-  
+
   // Set request ID for tracing
   context.requestId = generateRequestId();
-  
+
   // Log request
   logger.info({
     method: context.req.method,
@@ -28,7 +27,7 @@ Runs after a response is generated but before it's sent to the client.
 app.hooks.afterResponse((context, response) => {
   // Calculate response time
   const duration = Date.now() - context.startTime;
-  
+
   // Log response
   logger.info({
     method: context.req.method,
@@ -36,11 +35,11 @@ app.hooks.afterResponse((context, response) => {
     status: response.status,
     duration
   });
-  
+
   // Add response headers
-  response.setHeader('X-Response-Time', `${duration}ms`);
-  response.setHeader('X-Request-Id', context.requestId);
-  
+  response.setHeader("X-Response-Time", `${duration}ms`);
+  response.setHeader("X-Request-Id", context.requestId);
+
   return response;
 });
 ```
@@ -55,16 +54,16 @@ Runs once when the application starts, before the server begins accepting connec
 app.hooks.beforeStart(async () => {
   // Connect to database
   await connectToDatabase();
-  
+
   // Run migrations
   await runMigrations();
-  
+
   // Seed initial data
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     await seedDatabase();
   }
-  
-  logger.info('Application starting...');
+
+  logger.info("Application starting...");
 });
 ```
 
@@ -76,11 +75,11 @@ Run before and after individual route handlers.
 
 ```typescript
 app.get(
-  '/users/:id',
+  "/users/:id",
   {
     beforeHandler: [
       authenticate,
-      authorize('read:user')
+      authorize("read:user")
     ],
     afterHandler: [
       logUserAccess,

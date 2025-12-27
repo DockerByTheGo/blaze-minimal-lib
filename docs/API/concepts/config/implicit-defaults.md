@@ -21,7 +21,7 @@ const app = new Blaze();
 app.use({
   // Only override what you need
   port: 3000,
-  environment: 'development'
+  environment: "development"
 });
 ```
 
@@ -33,5 +33,6 @@ app.use({
 - **Discoverability**: Easy to see what can be configured
 
 ## Next Steps
+
 - Learn about [imperative configuration](./imperative.md)
 - Explore [declarative configuration](./declarative.md)

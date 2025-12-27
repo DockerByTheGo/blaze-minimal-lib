@@ -6,12 +6,14 @@
 
 ### Intellisense which takes into account hooks
 
-## routify (easy, mid level curicalty) 
+## routify (easy, mid level curicalty)
 
 ## Router
 
 ## Hooks
+
 ### Basic usage
+
 ### smuggling inbetween hooks
 
 # Bugs

@@ -19,10 +19,10 @@ app.use({
 });
 
 // Scoped configuration for a specific module
-app.use('/api', {
+app.use("/api", {
   // API-specific settings
   config: {
-    scope: 'local' // This configuration only applies to the /api route
+    scope: "local" // This configuration only applies to the /api route
   }
 });
 ```
@@ -34,5 +34,6 @@ app.use('/api', {
 - Be mindful of configuration inheritance to avoid unexpected behavior
 
 ## Next Steps
+
 - Learn about [implicit defaults](./implicit-defaults.md)
 - Explore [configuration locking](./locking-options.md)

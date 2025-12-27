@@ -1,10 +1,12 @@
 blazy is a minimal, composablr, end to end typesafe, backend oriented web framework.
 
 # Minimal
+
 we do not wanna do much, our aim is simple
 
 # Typesafe
-we have tried to make the framework as type safe as possible. 
+
+we have tried to make the framework as type safe as possible.
 
 ## Why is typesafety important
 
@@ -26,4 +28,4 @@ whenever we shpuld decide whether somwthing is checked at runtime or compile tim
 
 # Composable
 
-Spftware is complex and different pwople need  astly different things. we have all had a point ij our development journies where we were using a library and needed just slightly different behaviour but upon dome research we found that everything is so tightly coupled together and we cant just swap A with B. With blazy we have tried to make it so that alnost all componwnts talk bwtween each other using contracta so that if we decide to swap somwthing we just have to implemwnt some intetface and can easily replace the thing. We are not trying to solve your problems because we cant solve everyones problems so instead we tried an approach where we are the thing that is the closest tp ypur need while being highly customizable. 
+Spftware is complex and different pwople need astly different things. we have all had a point ij our development journies where we were using a library and needed just slightly different behaviour but upon dome research we found that everything is so tightly coupled together and we cant just swap A with B. With blazy we have tried to make it so that alnost all componwnts talk bwtween each other using contracta so that if we decide to swap somwthing we just have to implemwnt some intetface and can easily replace the thing. We are not trying to solve your problems because we cant solve everyones problems so instead we tried an approach where we are the thing that is the closest tp ypur need while being highly customizable.

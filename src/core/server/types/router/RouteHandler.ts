@@ -1,7 +1,6 @@
-import { HttpResponse } from "../../../client/types/HttpResponse";
-
+import type { HttpResponse } from "../../../client/types/HttpResponse";
 
 export type RouteHandler = {
-    RequestData: object;
-    Responses: HttpResponse;
+  RequestData: object;
+  Responses: HttpResponse;
 };

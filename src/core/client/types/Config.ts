@@ -1,4 +1,3 @@
-
 export type Config = {
-    retries: number;
+  retries: number;
 };

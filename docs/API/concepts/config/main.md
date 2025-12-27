@@ -5,6 +5,7 @@
 Configuration in @blazy/http-core allows you to change the behavior of your application. This document covers the different aspects of configuration.
 
 ## Table of Contents
+
 - [Concept](./concept.md)
 - [Scope](./scope.md)
 - [Implicit Defaults](./implicit-defaults.md)

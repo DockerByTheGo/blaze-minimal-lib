@@ -13,23 +13,23 @@ const app = new App({ hi: "" });
 const userRouter = app.createChildRouter(new ApiPath("/users"), { f: "" });
 
 userRouter.get(
-    "l",
-    {
-        body: z.object({}),
-        params: z.object({}),
-        responses: z.object({}),
-    },
+  "l",
+  {
+    body: z.object({}),
+    params: z.object({}),
+    responses: z.object({}),
+  },
 
-    async (req, res, next, ctx) => {
-        ctx.f;
-        ctx.hi;
-        // also since we use app we also have ACCESS to the parent context
-        return {
-            status: new ResponseStatus(200),
-            data: { message: "hello world" },
-        };
-    },
-    {
-        description: new Optionable("Get user list"),
-    },
+  async (req, res, next, ctx) => {
+    ctx.f;
+    ctx.hi;
+    // also since we use app we also have ACCESS to the parent context
+    return {
+      status: new ResponseStatus(200),
+      data: { message: "hello world" },
+    };
+  },
+  {
+    description: new Optionable("Get user list"),
+  },
 );

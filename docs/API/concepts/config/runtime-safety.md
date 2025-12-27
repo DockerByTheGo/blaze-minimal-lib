@@ -15,12 +15,12 @@ Runtime safety ensures that locked configuration options cannot be modified afte
 ```typescript
 // First, lock a configuration option
 app.use({
-  apiKey: { value: 'secret-key-123', isLocked: true }
+  apiKey: { value: "secret-key-123", isLocked: true }
 });
 
 // Later, trying to change the locked option
 app.use({
-  apiKey: 'new-key'  // This will throw: "Option 'apiKey' is locked, it can't be changed"
+  apiKey: "new-key" // This will throw: "Option 'apiKey' is locked, it can't be changed"
 });
 ```
 
@@ -37,15 +37,15 @@ app
 ### Using Lock Helper
 
 ```typescript
-import { Lock } from '@blazy/utils';
+import { Lock } from "@blazy/utils";
 
 app.use(Lock({
-  environment: 'production',
+  environment: "production",
   debug: false
 }));
 
 // Any of these would throw an error
-app.use({ environment: 'development' });
+app.use({ environment: "development" });
 app.use({ debug: true });
 ```
 
@@ -59,10 +59,12 @@ app.use({ debug: true });
 ## Troubleshooting
 
 If you encounter a locking error:
+
 1. Check where the option was first locked
 2. Look for any code that might be trying to modify it
 3. Consider if the lock is necessary or if the code trying to change it should be updated
 
 ## Next Steps
+
 - Learn about [type safety with locked options](./type-safety.md)
 - Review [configuration scopes](../scope.md) for more control over where configurations apply

@@ -7,21 +7,21 @@ wsRouter.getCLientBuilder(new WebsocketUrl("ws://localhost:4000")).generateClien
 // make this example so that it alerts
 
 wsRouter
-    .implement(
-        {
-            helloRoute: {
-                newData: (v) => {
-                    console.log("g", v.message);
-                },
-                newNotification: (v) => {
-                    v.data.message;
-                },
-            },
-            userRoute: {
-                checkForInvalidUsersInRoom: (v) => {},
-                deleteUser: (v) => {},
-            },
+  .implement(
+    {
+      helloRoute: {
+        newData: (v) => {
+          console.log("g", v.message);
         },
-    );
+        newNotification: (v) => {
+          v.data.message;
+        },
+      },
+      userRoute: {
+        checkForInvalidUsersInRoom: (v) => {},
+        deleteUser: (v) => {},
+      },
+    },
+  );
 
 wsRouter.start(new Port(4000));

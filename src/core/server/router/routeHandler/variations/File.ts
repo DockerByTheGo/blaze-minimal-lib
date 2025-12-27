@@ -1,18 +1,18 @@
-import { IRouteHandler } from "../types/IRouteHandler";
-import fs from 'fs'
+import fs from "node:fs";
 
+import type { IRouteHandler } from "../types/IRouteHandler";
 
 export class FileRouteHandler implements IRouteHandler<
-    { body: { file: File }},
-    {}
+  { body: { file: File } },
+  {}
 > {
-    constructor(private filePath: string) { }
+  constructor(private filePath: string) { }
 
-    handleRequest(): { body: {file: File} } {
-        return {
-            body: {
-                file: fs.createReadStream(this.filePath)
-            }
-        }
-    }
+  handleRequest(): { body: { file: File } } {
+    return {
+      body: {
+        file: fs.createReadStream(this.filePath),
+      },
+    };
+  }
 }

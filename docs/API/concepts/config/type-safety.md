@@ -17,12 +17,12 @@ When you lock a configuration option:
 ```typescript
 // Lock a configuration option
 app.use({
-  apiKey: { value: 'secret', isLocked: true }
+  apiKey: { value: "secret", isLocked: true }
 });
 
 // TypeScript will prevent this at compile time
 app.use({
-  apiKey: 'new-secret'  // Error: Type 'string' is not assignable to type 'never'
+  apiKey: "new-secret" // Error: Type 'string' is not assignable to type 'never'
 });
 ```
 
@@ -39,13 +39,13 @@ app.use({
 
 ```typescript
 const config = {
-  environment: { value: 'production' as const, isLocked: true }
+  environment: { value: "production" as const, isLocked: true }
 };
 
 app.use(config);
 
 // TypeScript knows this is 'production' and it's locked
-if (config.environment.value === 'production') {
+if (config.environment.value === "production") {
   // This is type-safe
 }
 ```
@@ -55,12 +55,12 @@ if (config.environment.value === 'production') {
 ```typescript
 // TypeScript infers the exact literal type
 app.use({
-  logLevel: { value: 'debug' as const, isLocked: true }
+  logLevel: { value: "debug" as const, isLocked: true }
 });
 
 // This would be a type error
 app.use({
-  logLevel: 'verbose'  // Error: Type '"verbose"' is not assignable to type 'never'
+  logLevel: "verbose" // Error: Type '"verbose"' is not assignable to type 'never'
 });
 ```
 
@@ -72,5 +72,6 @@ app.use({
 4. **Test** your configuration in development to catch type errors early
 
 ## Next Steps
+
 - Learn about [runtime safety for locked options](./runtime-safety.md)
 - Explore [configuration scopes](../scope.md) for more control over configurations

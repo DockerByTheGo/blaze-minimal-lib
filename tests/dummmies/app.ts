@@ -5,24 +5,24 @@ import { HookBuilder } from "../../src/core/websocket/server/utilites/builders/H
 import { pukiMessage } from "./Message";
 
 export const router = new CustomWebSocketRouter({}).addChannel("channel-1", {
-    hooks: {
-        beforeHandle: {
-            ordered: HookBuilder
-                .new()
-                .add({
-                    key: "lolo",
-                    execute: v => ({ hi: "" } as const),
-                })
-                .build(),
-            independent: [],
-        },
+  hooks: {
+    beforeHandle: {
+      ordered: HookBuilder
+        .new()
+        .add({
+          key: "lolo",
+          execute: v => ({ hi: "" } as const),
+        })
+        .build(),
+      independent: [],
     },
-    messagesItCanReceive: {
-        puki: pukiMessage,
-    } as const,
-    messagesItCanSend: {
-        puki: z.object({
-            puki: z.string(),
-        }),
-    },
+  },
+  messagesItCanReceive: {
+    puki: pukiMessage,
+  } as const,
+  messagesItCanSend: {
+    puki: z.object({
+      puki: z.string(),
+    }),
+  },
 });

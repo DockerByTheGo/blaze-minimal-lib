@@ -1,24 +1,22 @@
-import { RouteMAtcher } from "./routeMatcher/types";
-import { RouteHandler } from "../types/router/RouteHandler";
-import { NormalRouting } from "./routeMatcher/normal/variations/NormalRouting";
+import type { TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
+import type { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 import { Hook, Hooks } from "../../types/Hooks/Hooks";
-import { PretifyRecord, TypeSafeOmit, URecord, objectEntries } from "@blazyts/better-standard-library";
-import { IRouteHandler } from "./routeHandler/types";
-import { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
+import type { RequestObjectHelper } from "../../utils/RequestObjectHelper";
+import type { RouteHandler } from "../types/router/RouteHandler";
+import type { IRouteHandler } from "./routeHandler/types";
+import type { RouteMAtcher } from "./routeMatcher/types";
+import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
+import type { Path } from "./utils/path/Path";
 import { ClientBuilder } from "../../client/client-builder/clientBuilder";
-import { Path } from "./utils/path/Path";
-import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
-import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
-    TRoutes extends RouteTree
+    TRoutes extends RouteTree,
 > {
-
     constructor(
         public routerHooks: TRouterHooks,
         public routes: TRoutes,
-        public routeFinder: (path: Path<string>) => Optionable<((req: Request) => unknown)> // implement the route funder  
+        public routeFinder: (path: Path<string>) => Optionable<((req: Request) => unknown)>, // implement the route funder
     ) {
 
     }
@@ -27,22 +25,23 @@ export class RouterObject<
         TRoouteMAtcher extends RouteMAtcher<unknown>,
         THandlerReturn,
         THooks extends RouteHandlerHooks<TRouterHooks>,
-        THandler extends ((arg: ReturnType<THooks["beforeRequest"]> & TRoouteMAtcher["TGetContextType"]) => THandlerReturn) | IRouteHandler<{ body: URecord }, { body: URecord }>
+        THandler extends ((arg: ReturnType<THooks["beforeRequest"]> & TRoouteMAtcher["TGetContextType"]) => THandlerReturn) | IRouteHandler<{ body: URecord }, { body: URecord }>,
     >(v: {
-        v: TRoouteMAtcher,
-        handler: THandler,
-        hooks?: THooks
-    }): RouterObject<
+        v: TRoouteMAtcher;
+        handler: THandler;
+        hooks?: THooks;
+    },
+    ): RouterObject<
         TRouterHooks,
         TRoutes & Record<string, RouteHandler>
     > {
         const routeString = v.v.getRouteString();
-        const segments = routeString.split('/').filter(s => s !== '');
+        const segments = routeString.split("/").filter(s => s !== "");
         const newRoutes = { ...this.routes };
         let current: any = newRoutes;
         for (let i = 0; i < segments.length - 1; i++) {
             const segment = segments[i];
-            if (!current[segment] || (typeof current[segment] === 'object' && !('handler' in current[segment]))) {
+            if (!current[segment] || (typeof current[segment] === "object" && !("handler" in current[segment]))) {
                 current[segment] = {};
             }
             current = current[segment];
@@ -54,40 +53,55 @@ export class RouterObject<
 
     beforeRequest<
         TName extends string,
-        THandler extends (arg: TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]) => Record<string, unknown>
+        THandler extends (arg: TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]) => Record<string, unknown>,
     >(v: {
-        name: TName,
-        handler: THandler
-    }): RouterObject<
+        name: TName;
+        handler: THandler;
+    },
+    ): RouterObject<
         TypeSafeOmit<TRouterHooks, "beforeRequest">
-        &
-        { beforeRequest: Hooks<[...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]> },
+        & { beforeRequest: Hooks<[...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]> },
         TRoutes
     > {
-        return this.routerHooks.beforeRequest.add({
+
+        this.routerHooks.beforeRequest.add({
             name: v.name,
-            handler: v.handler
-        })
+            handler: v.handler,
+        });
+
+        return this
+
     }
 
     addRoute2<TRoute extends IRouteHandler<{ body: { koko: string } }, { body: URecord }>>(v: TRoute) {
-        return
+
     }
 
     createCleint() {
 
-        return ClientBuilder.constructors.fromRouteTree(this.routes)
+        return ClientBuilder.fromRouteTree(this.routes);
 
     }
 
     route(request: RequestObjectHelper<any, any, any>) {
-        return this.routeFinder(request.path)
+
+        return this.routeFinder(request.path);
+
     }
 
     static empty() {
-        return new RouterObject({}, {}, () => { })
+
+        return new RouterObject(
+            {
+                beforeRequest: Hooks.empty(),
+                afterResponse: Hooks.empty(),
+            },
+            {
+            },
+            () => { }
+
+        );
+
     }
 
 }
-
-

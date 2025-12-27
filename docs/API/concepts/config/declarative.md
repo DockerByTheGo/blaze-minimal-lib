@@ -19,15 +19,15 @@ import { ConfigBuilder } from "@blazy/utils";
 app.use(ConfigBuilder.createDeclarative({
   // This will completely replace the current config
   port: 3000,
-  environment: 'production',
+  environment: "production",
   // All other settings will use their default values
 }));
 
 // Shorter form (implicit)
 app.use({
   // This will be merged with existing config (imperative)
-  logLevel: 'debug'
-}, { mode: 'declarative' });
+  logLevel: "debug"
+}, { mode: "declarative" });
 ```
 
 ## When to Use
@@ -42,5 +42,6 @@ app.use({
 - Consider using scoped configurations to limit the scope of declarative changes
 
 ## Next Steps
+
 - Learn about [configuration locking](./locking-options.md)
 - Explore [imperative configuration](./imperative.md) for partial updates
