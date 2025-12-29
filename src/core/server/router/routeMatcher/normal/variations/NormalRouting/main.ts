@@ -12,6 +12,8 @@ export class NormalRouting<T extends string> implements RouteMAtcher<ExtractPara
     return this.routeString;
   }
 
+  TGetRouteString: T;
+
   typeInfo: TypeMarker<string>;
 
   match(path: string): Optionable<ExtractParams<T>> {

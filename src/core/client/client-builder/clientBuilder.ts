@@ -6,7 +6,7 @@ import type { ClientHooks } from "../types/ClientHooks";
 import type { Config } from "../types/Config";
 
 import { Hooks } from "../../types/Hooks/Hooks";
-import { Client } from "../Client";
+import { Client, ClientObject } from "../Client";
 
 export const CleintBuilderConstructors = {
   
@@ -102,7 +102,7 @@ export class ClientBuilder<
     );
   }
 
-  createClient(): Client<TRouter> {
+  createClient(): ClientObject<TRouter> {
     return new Client(
       this.hooks,
       this.config,

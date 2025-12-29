@@ -1,13 +1,18 @@
 import { IRouteHandler } from "../server/router/routeHandler";
 import { RouteTree } from "../server/router/types";
-import { CleintBuilderConstructors } from "./client-builder/constructors";
-
 
 export type Routes<R extends RouteTree> = {
-    send<Route extends keyof R>(route: Route): R[Route] extends IRouteHandler<any, any> ? R[Route] ["getLCientRepresentation"] : Routes<R[Route]>
+    send<Route extends keyof R>(route: Route): R[Route] extends IRouteHandler<any, any> ? R[Route]["getClientRepresentation"] : Routes<R[Route]>
 }
 
-class ClientConstructors {
+export type ClientObject<T extends RouteTree> = {
+    [CurrentRoute in keyof T]: T[CurrentRoute] extends IRouteHandler<any, any> 
+    ? T[CurrentRoute]["getClientRepresentation"]
+    : ClientObject<T[CurrentRoute]>
+}
+
+export class ClientConstructors {
+
     empty() {
         return new Client({})
     }
@@ -15,14 +20,17 @@ class ClientConstructors {
     fromRoutes<TRouteTree extends RouteTree>(routes: TRouteTree) {
         return new Client(routes)
     }
+
 }
 
 export class Client<TRouteTree extends RouteTree> {
+
     public readonly routes: Routes<TRouteTree>
 
     public constructor(routes: TRouteTree) {
+
         this.routes = {
-            send: <Route extends keyof TRouteTree>(route: Route): TRouteTree[Route] extends IRouteHandler<any, any> ?  TRouteTree[Route]["getLCientRepresentation"] :  => {
+            send<Route extends keyof TRouteTree>(route: Route) : TRouteTree[Route] extends IRouteHandler<any, any> ? TRouteTree[Route]["getClientRepresentation"] : () => {
                 // In a real client, this method would construct and send an HTTP request
                 // based on the `TRouteTree[Route]["getLCientRepresentation"]` definition
                 // and return a Promise of the response.
@@ -46,35 +54,9 @@ export class Client<TRouteTree extends RouteTree> {
     
     probably needs to be inside blazy edge 
     */
-    confirmSchema() { }
+    confirmSchema() {
+
+    }
 
 
 }
-
-// Example RouteTree definition
-// Example usage
-const myRouteDefinitions = {
-    "/users": {
-        getLCientRepresentation: {
-            method: "GET",
-            path: "/users",
-            response: [] // Runtime value not relevant for type definition
-        }
-    },
-    "/users/:id": {
-        getLCientRepresentation: {
-            method: "GET",
-            path: "/users/:id",
-            params: { id: "" }, // Runtime value not relevant for type definition
-            response: { id: "", name: "" } // Runtime value not relevant for type definition
-        }
-    }
-} satisfies RouteTree
-
-
-
-const client = new Client(myRouteDefinitions);
-
-// Getting the client representation for a specific route
-
-const userByIdRouteClientRep = client.routes.send("/users/:id");

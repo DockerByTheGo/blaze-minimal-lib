@@ -4,7 +4,7 @@ import { panic } from "@blazyts/better-standard-library";
 import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option/main";
 
 import type { RouteMAtcher } from "../types";
-import type { ExtractParams } from "./types/extractParams";
+import { extractParams, type ExtractParams } from "./types/extractParams";
 
 import { getParts } from "../utils/getParts";
 
@@ -13,6 +13,7 @@ const IsDynamic = (s: string) => s[0] === ":";
 function match<T extends string>(schema: T, config: { [K in T]: (v: K) => void }) {
   return config[schema](schema);
 }
+
 
 const types = [{ date: "(" }, { number: "$" }];
 

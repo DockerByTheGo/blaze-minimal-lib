@@ -1,6 +1,6 @@
 import type { URecord } from "@blazyts/better-standard-library";
 
-import type { Path } from "../server/router/utils/path/Path";
+import { Path } from "../server/router/utils/path/Path";
 
 // here we are doing transformation on demand so that we wrap the core object around this helers inly when needed to not hurt performace
 
@@ -10,9 +10,10 @@ export class RequestObjectHelper<
   TPath extends string,
 > {
   constructor(
-    private readonly v: {
+    public readonly properties: {
       body: TBodySchema;
       headers: THeaders;
+      path: TPath
     },
   ) {
 
@@ -23,14 +24,26 @@ export class RequestObjectHelper<
     safeAccess: TBodySchema;
   } {
     return {
-      ...this.v,
+      ...this.properties,
       getUnsafe: (property: string) => {
-        return this.v.body[property];
+        return this.properties.body[property];
       },
     };
   }
 
-  get path(): Path<TPath> {
+  public get path(): Path<TPath> {
+    return new Path(this.properties.path)
+  }
 
+  public createMutableCopy(): {
+    body: TBodySchema;
+    headers: THeaders;
+    path: TPath;
+  } {
+    return {
+      body: { ...this.properties.body },
+      headers: { ...this.properties.headers },
+      path: this.properties.path,
+    };
   }
 }
