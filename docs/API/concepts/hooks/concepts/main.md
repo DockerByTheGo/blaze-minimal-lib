@@ -24,6 +24,15 @@ app.hook(handler, "name-of-subapp"); // on a specific app
 app.hook(handler, "base"); // at thr first level of apps e.g the root app
 ```
 
+### route vs app hooks 
+
+some hooks can be applied per router level so that they only apply to one router. 
+
+
+Why ?
+
+well it improvies readability since you logically separate components of your handler
+
 #### inheritance scope
 
 Should the middleware also be ran when a sub app is detected
