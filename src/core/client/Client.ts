@@ -38,10 +38,11 @@ export class Client<TRouteTree extends RouteTree> {
                 // and return a Promise of the response.
                 // For this example, we just return the client representation definition itself.
                 // A more complete implementation would involve a network call.
-                console.log(`Preparing client representation for route: ${String(route)}`);
-                return routes[route as string]["getLCientRepresentation"];
+                return
+
             }
-        };
+        
+        }
 
     }
 
