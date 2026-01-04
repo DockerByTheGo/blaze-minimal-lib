@@ -30,16 +30,20 @@ export class Client<TRouteTree extends RouteTree> {
     public constructor(routes: TRouteTree) {
 
         this.routes = {
-            send<Route extends keyof TRouteTree>(route: Route) : TRouteTree[Route] extends IRouteHandler<any, any> ? TRouteTree[Route]["getClientRepresentation"] : () => {
+
+            send<Route extends keyof TRouteTree>(route: Route) : TRouteTree[Route] extends IRouteHandler<any, any>
+             ? TRouteTree[Route]["getClientRepresentation"]
+             : "" {
                 // In a real client, this method would construct and send an HTTP request
                 // based on the `TRouteTree[Route]["getLCientRepresentation"]` definition
                 // and return a Promise of the response.
                 // For this example, we just return the client representation definition itself.
                 // A more complete implementation would involve a network call.
-                console.log(`Preparing client representation for route: ${String(route)}`);
-                return routes[route as string]["getLCientRepresentation"];
+                return
+
             }
-        };
+        
+        }
 
     }
 
