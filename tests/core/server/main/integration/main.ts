@@ -1,7 +1,31 @@
 // import { expect, expectTypeOf } from "vitest";
 
+import { RouteMAtcher } from "../../../../../src/core/server";
 import { RouterObject } from "../../../../../src/core/server/router/Router";
 import { RequestObjectHelper } from "../../../../../src/core/utils/RequestObjectHelper";
+
+
+
+class NormalRouting<T extends string> implements RouteMAtcher<ExtractParams<T>> {
+    type = "normal";
+
+    constructor(private routeString: T) { }
+
+    getRouteString() {
+        return this.routeString;
+    }
+
+    TGetRouteString: T;
+
+    typeInfo: TypeMarker<string>;
+
+    match(path: string): Optionable<ExtractParams<T>> {
+        return this.routeString === path ? this.routeString : undefined;
+    }
+
+    TGetContextType: ExtractParams<T>;
+}
+
 
 const router = RouterObject
     .empty()
@@ -33,10 +57,10 @@ const router = RouterObject
         routeMatcher: new NormalRouting("/user/:userId"),
         handler: ctx => { return "userId" },
     })
-// .addRoute({
-//     routeMatcher: new NormalRouting("/simple-route/koko"),
-//     handler: new FileRouteHandler("./hihi.txt"),
-// });
+    .addRoute({
+        routeMatcher: new NormalRouting("/simple-route/koko"),
+        handler: new FileRouteHandler("./hihi.txt"),
+    });
 
 router.routes.post[":postId"]({ "postId": "" })
 
