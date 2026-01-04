@@ -1,7 +1,5 @@
-import { expect, expectTypeOf } from "vitest";
+// import { expect, expectTypeOf } from "vitest";
 
-import { FileRouteHandler } from "../../../../../src/core/server/router/routeHandler";
-import { NormalRouting } from "../../../../../src/core/server/router/routeMatcher/normal/variations/NormalRouting";
 import { RouterObject } from "../../../../../src/core/server/router/Router";
 import { RequestObjectHelper } from "../../../../../src/core/utils/RequestObjectHelper";
 
@@ -16,34 +14,38 @@ const router = RouterObject
         handler: arg => "" as const,
     })
     .addRoute({
-        routeMatcher: new NormalRouting("/post/:postId"),
+        routeMatcher: {
+            match(path: string): Optionable<ExtractParams<T>> {
+                return this.routeString === path ? this.routeString : undefined;
+            }
+        },
         hooks: { // ! its importnat to place hooks before handler
             beforeRequest: (arg) => { return { koko: "koko" } as const; },
             afterResponse: (arg) => { return { koko: "koko" } as const; },
         },
-        handler: (ctx) => {
+        handler: EnhancedNormalRouteHandler.new(ctx => {
+
             expectTypeOf(ctx).toEqualTypeOf<{ postId: string }>();
-        },
+            return {}
+        }),
     })
     .addRoute({
         routeMatcher: new NormalRouting("/user/:userId"),
-        handler: (ctx) => { return "userId" },
+        handler: ctx => { return "userId" },
     })
 // .addRoute({
 //     routeMatcher: new NormalRouting("/simple-route/koko"),
 //     handler: new FileRouteHandler("./hihi.txt"),
 // });
 
-router.routes["/post/:postId"]
+router.routes.post[":postId"]({ "postId": "" })
 
 
 console.log(router.routes)
 expect(router.route(new RequestObjectHelper({
     path: "/user/1",
     headers: {},
-    body: {
-
-    }
+    body: {}
 })
 )).toBe("userId")
 

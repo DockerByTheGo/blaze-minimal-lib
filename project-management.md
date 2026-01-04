@@ -6,7 +6,6 @@
 
 ### Intellisense which takes into account hooks
 
-## routify (easy, mid level curicalty)
 
 ## Router
 

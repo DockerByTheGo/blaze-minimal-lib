@@ -1,4 +1,7 @@
 export { RouterObject } from "./src/core/server/router/Router";
+export * from "./src/core/server/router/routeMatcher"
+
+
 
 type TypeMarked = { type: string };
 
