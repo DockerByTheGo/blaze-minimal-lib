@@ -140,6 +140,9 @@ Responses.NotFound()
 Responses.Redirect("...")
 ```
 
+###### `ctx.respond(r: Response)`
+if you want to not treat the return function of a handler as a Response use the ctx.Respod(...) and the return of the func wont be treated as the response
+
 ## Route Groups
 
 ### Basic Grouping
