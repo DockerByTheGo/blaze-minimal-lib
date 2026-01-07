@@ -1,4 +1,4 @@
-import type { TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
+import type { MemberAlreadyPresent, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
 import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 import { Hook, Hooks } from "../../types/Hooks/Hooks";
 import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
@@ -7,12 +7,12 @@ import type { RouteMAtcher } from "./routeMatcher/types";
 import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../client/client-builder/clientBuilder";
-import type { Request } from "./routeHandler/types/IRouteHandler";
-
+import type { Request, Response } from "./routeHandler/types/IRouteHandler";
+import { TypeError } from "@blazyts/better-standard-library";
 
 type pathStringToObject<T extends string, C, ReturnType = {}> =
     T extends `/${infer CurrentPart}/${infer Rest}`
-    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C >}
+    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C> }
     : T extends `/${infer Param}`
     ? ReturnType & { [K in Param]: C }
     : ReturnType
@@ -35,14 +35,14 @@ export class RouterObject<
     }
 
     addRoute<
-        TRoouteMAtcher extends RouteMAtcher<unknown>,
+        TRoouteMAtcher extends RouteMAtcher<URecord>,
         THandlerReturn extends Response,
         THooks extends RouteHandlerHooks<TRouterHooks>,
         THandler extends IRouteHandler<
             { body: TRoouteMAtcher["TGetContextType"] },
             THandlerReturn
         >,
-        
+
     >(v: {
         routeMatcher: TRoouteMAtcher;
         handler: THandler;
@@ -76,11 +76,13 @@ export class RouterObject<
         name: TName;
         handler: THandler;
     },
-    ): RouterObject<
-        TypeSafeOmit<TRouterHooks, "beforeRequest">
-        & { beforeRequest: Hooks<[...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]> },
-        TRoutes
-    > {
+    ): TName extends TRouterHooks["beforeRequest"]["v"][number]["name"]
+        ? MemberAlreadyPresent<"there is a hook with this name already">
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "beforeRequest">
+            & { beforeRequest: Hooks<[...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
 
         this.routerHooks.beforeRequest.add({
             name: v.name,
@@ -95,9 +97,9 @@ export class RouterObject<
 
     }
 
-    createCleint() {
+    createClient() {
 
-        return CleintBuilderConstructors.fromRouteTree(this.routes);
+        return ClientBuilderConstructors.fromRouteTree(this.routes);
 
     }
 
@@ -106,12 +108,13 @@ export class RouterObject<
         let mutReq = request.createMutableCopy()
         const newReq = new RequestObjectHelper(this.routerHooks.beforeRequest.v.reduce((acc, v) => v.handler(acc), mutReq))
 
-        let reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
-            ifNone: () => "none",
+        const reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
+            ifNone: () => { throw new Error("Route not found") },
             ifNotNone: v => v(newReq)
         })
 
-        return this.routerHooks.afterRequest.v.reduce()
+        // Apply after request hooks
+        return this.routerHooks.afterRequest.v.reduce((acc, hook) => hook.handler(acc), reqAfterPerformingHandler)
 
     }
 
@@ -120,7 +123,7 @@ export class RouterObject<
         return new RouterObject(
             {
                 beforeRequest: Hooks.empty(),
-                afterResponse: Hooks.empty(),
+                afterRequest: Hooks.empty(),
             },
             {
             },
