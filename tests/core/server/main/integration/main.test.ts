@@ -57,12 +57,12 @@ const router = RouterObject
     .afterHandler({
         name: "koko",
         placer: "last",
-        handler: v => ({hi: "string"}),
+        handler: v => ({...v,hi: "string"}),
     })
     .afterHandler({
         name: "lolo",
         placer: "last",
-        handler: v => ({ko: v.hi})
+        handler: v => ({...v,ko: v.hi})
     })
     .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),
@@ -70,7 +70,7 @@ const router = RouterObject
 
         },
         handler: {
-            "handleRequest": v => "koko"
+            "handleRequest": v => ({ame: "koko"})
         }
     })
     // .addRoute({
