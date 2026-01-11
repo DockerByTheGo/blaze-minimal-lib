@@ -98,14 +98,15 @@ export class RouterObject<
                 Extends<TPlacer, "first", {}>
             ]>
         ) => getFromTupleWhichIsntNull<[
-            Extends<TPlacer, "last" |, URecord>,
-            Extends<TPlacer, "first", FirstArg<TRouterHooks["beforeRequest"]["TGetFirstHook"]>>
+            Extends<TPlacer, "last" , URecord>,
+            Extends<TPlacer, "first", TRouterHooks["beforeRequest"]["TGetFirstHook"]["TGetArgType"]>
         ]>,
         TPlacer extends "before" | "after" | "last" | "first"
     >(v: {
         name: TName;
         handler: THandler;
-        placer: TPlacer
+        placer: TPlacer,
+        l?: TRouterHooks["beforeRequest"]["TGetFirstHook"]["TGetArgType"]
     },
     ): TName extends TRouterHooks["beforeRequest"]["v"][number]["name"]
         ? MemberAlreadyPresent<"there is a hook with this name already">
