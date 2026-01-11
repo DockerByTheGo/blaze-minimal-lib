@@ -49,7 +49,7 @@ const router = RouterObject
         name: "df",
         placer: "first",
         l: 1,
-        handler: v => { return  {}}
+        handler: v => { return  {hi: ""}}
     })
     .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),

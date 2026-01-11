@@ -48,6 +48,7 @@ export class Hooks<
   }
 
   TGetFirstHook: First<THooks> = null;
+  TGetFirstHookArgType: First<THooks>["TGetArgType"] = null;
   TGetLastHookReturnType: VLastHookReturnType;
 
   TGetLastHook: Last<THooks>;

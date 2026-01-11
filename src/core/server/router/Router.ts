@@ -33,6 +33,12 @@ type pathStringToObject<T extends string, C, ReturnType = {}> =
 type j = pathStringToObject<"/user/:userId/token/:tokenId", {}, 2> // must resolve to {user: {":userId": {token: {":tokenId": string}}}}
 
 
+
+const HandlerHookTypes = ["before" , "after"  ,"last" , "first"] as const
+
+type HandlerHookTypes = typeof HandlerHookTypes
+
+
 export class RouterObject<
     TRouterHooks extends RouterHooks,
     TRoutes extends RouteTree,
@@ -86,10 +92,6 @@ export class RouterObject<
         app[type] // kinda ugly 
     }
     */
-
-
-
-
     beforeRequest<
         TName extends string,
         THandler extends (
@@ -99,14 +101,13 @@ export class RouterObject<
             ]>
         ) => getFromTupleWhichIsntNull<[
             Extends<TPlacer, "last" , URecord>,
-            Extends<TPlacer, "first", TRouterHooks["beforeRequest"]["TGetFirstHook"]["TGetArgType"]>
+            Extends<TPlacer, "first", TRouterHooks["beforeRequest"]["TGetFirstHookArgType"]>
         ]>,
-        TPlacer extends "before" | "after" | "last" | "first"
+        TPlacer extends HandlerHookTypes[number]
     >(v: {
         name: TName;
         handler: THandler;
         placer: TPlacer,
-        l?: TRouterHooks["beforeRequest"]["TGetFirstHook"]["TGetArgType"]
     },
     ): TName extends TRouterHooks["beforeRequest"]["v"][number]["name"]
         ? MemberAlreadyPresent<"there is a hook with this name already">
@@ -127,10 +128,6 @@ export class RouterObject<
         });
 
         return this
-
-    }
-
-    addRoute2<TRoute extends IRouteHandler<{ body: { koko: string } }, { body: URecord }>>(v: TRoute) {
 
     }
 
