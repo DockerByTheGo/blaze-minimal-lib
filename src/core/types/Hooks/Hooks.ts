@@ -47,7 +47,10 @@ export class Hooks<
     super("Hooks");
   }
 
-  TGetFirstHook: First<THooks>
+  TGetFirstHook: First<THooks> = null;
+  TGetIsEmpty: THooks extends [] ? (number extends T['length'] ? false : true) : false = null;
+;
+  TGetFirstHookArgType: First<THooks>["TGetArgType"] = null;
   TGetLastHookReturnType: VLastHookReturnType;
 
   TGetLastHook: Last<THooks>;
@@ -58,6 +61,7 @@ export class Hooks<
 
   TGetHookNames: THooks[number]["name"] = null;
 
+
   /**
    * Places a hook at the first position. If there are no existing hooks, the hook's return type can be any type.
    * If there are existing hooks, the hook's return type must match the argument type of the current first hook.
@@ -67,8 +71,8 @@ export class Hooks<
     THook extends (arg: URecord) => THooks extends []
       ? unknown
       : FirstArg<First<THooks>>
-  >() {
-
+  >(v: { name: TName; handler: THook }): Hooks<[Hook<TName, THook>, ...THooks]> {
+    return new Hooks([new Hook(v.name, v.handler), ...this.v]);
   }
 
   placeBefore<

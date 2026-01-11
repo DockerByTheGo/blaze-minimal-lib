@@ -33,6 +33,12 @@ type pathStringToObject<T extends string, C, ReturnType = {}> =
 type j = pathStringToObject<"/user/:userId/token/:tokenId", {}, 2> // must resolve to {user: {":userId": {token: {":tokenId": string}}}}
 
 
+
+const HandlerHookTypes = ["before", "after", "last", "first"] as const
+
+type HandlerHookTypes = typeof HandlerHookTypes
+
+
 export class RouterObject<
     TRouterHooks extends RouterHooks,
     TRoutes extends RouteTree,
@@ -86,26 +92,23 @@ export class RouterObject<
         app[type] // kinda ugly 
     }
     */
-
-
-
-
     beforeRequest<
         TName extends string,
         THandler extends (
-            arg: getFromTupleWhichIsntNull<[
-                Extends<TPlacer, "last" , ifAny<TRouterHooks["beforeRequest"]["TGetLastHookReturnType"], {}>>,
+            arg: 
+             getFromTupleWhichIsntNull<[
+                Extends<TPlacer, "last", TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]>,
                 Extends<TPlacer, "first", {}>
             ]>
         ) => getFromTupleWhichIsntNull<[
-            Extends<TPlacer, "last" |, URecord>,
-            Extends<TPlacer, "first", FirstArg<TRouterHooks["beforeRequest"]["TGetFirstHook"]>>
+            Extends<TPlacer, "last", URecord>,
+            Extends<TPlacer, "first", TRouterHooks["beforeRequest"]["TGetFirstHookArgType"]>
         ]>,
-        TPlacer extends "before" | "after" | "last" | "first"
+        TPlacer extends HandlerHookTypes[number]
     >(v: {
         name: TName;
         handler: THandler;
-        placer: TPlacer
+        placer: TPlacer,
     },
     ): TName extends TRouterHooks["beforeRequest"]["v"][number]["name"]
         ? MemberAlreadyPresent<"there is a hook with this name already">
@@ -113,23 +116,23 @@ export class RouterObject<
             TypeSafeOmit<TRouterHooks, "beforeRequest">
             & {
                 beforeRequest: Hooks<getFromTupleWhichIsntNull<[
-                    Extends<TPlacer,"first",[Hook<TName, THandler>, ...TRouterHooks["beforeRequest"]["v"]]>,
-                    Extends<TPlacer, "last" , [...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]>
+                    Extends<TPlacer, "first", [Hook<TName, THandler>, ...TRouterHooks["beforeRequest"]["v"]]>,
+                    Extends<TPlacer, "last", [...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]>
                 ]>>
             },
             TRoutes
         > {
 
-        this.routerHooks.beforeRequest.add({
-            name: v.name,
-            handler: v.handler,
-        });
+        const updatedHooks = v.placer === "first" ? this.routerHooks.beforeRequest.placeFirst(v) : this.routerHooks.beforeRequest.add(v);
 
-        return this
-
-    }
-
-    addRoute2<TRoute extends IRouteHandler<{ body: { koko: string } }, { body: URecord }>>(v: TRoute) {
+        return new RouterObject(
+            {
+                ...this.routerHooks,
+                beforeRequest: updatedHooks,
+            },
+            this.routes,
+            this.routeFinder
+        );
 
     }
 
@@ -158,8 +161,11 @@ export class RouterObject<
 
         return new RouterObject(
             {
-                beforeRequest: Hooks.empty(),
-                afterRequest: Hooks.empty(),
+                beforeRequest: Hooks
+                .empty()
+                .add({name: "transfrom req ", handler: v => {body: {}}}),
+                afterRequest: Hooks
+                .empty(),
             },
             {
             },

@@ -32,8 +32,8 @@ const router = RouterObject
     .empty()
     .beforeRequest({
         name: "add-token",
-        handler: arg => ({hi: ""} as const),
-        placer: "last", // hooks only work with explicit usage 
+        handler: (arg: {hi: string}) => ({hi: ""} as const),
+        placer: "last", // ! hooks only work with explicit usage , sucks to suck but it simplifes the interal type much more, ad since this isnt supposed to be used by the end user but instead you build on top of it
     })
     .beforeRequest({
         name: "add-user",
@@ -44,6 +44,14 @@ const router = RouterObject
         name: "st",
         handler: v => v,
         placer: "last"
+    })
+    .beforeRequest({
+        name: "df",
+        placer: "first",
+        l: 1,
+        handler: v => { 
+            return {}
+        }
     })
     .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),
