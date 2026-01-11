@@ -33,10 +33,17 @@ const router = RouterObject
     .beforeRequest({
         name: "add-token",
         handler: arg => ({hi: ""} as const),
+        placer: "last", // hooks only work with explicit usage 
     })
     .beforeRequest({
         name: "add-user",
-        handler: arg => ({...arg, koko: "" }),
+        handler: arg => ({ koko: "" }),
+        placer: "last"
+    })
+    .beforeRequest({
+        name: "st",
+        handler: v => v,
+        placer: "last"
     })
     .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),

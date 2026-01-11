@@ -1,4 +1,4 @@
-import type { Last } from "@blazyts/better-standard-library";
+import type { First, FirstArg, Last, URecord } from "@blazyts/better-standard-library";
 
 import { TypeMarker } from "@blazyts/better-standard-library";
 
@@ -19,8 +19,8 @@ type FindHookByName<
   ...infer Rest extends readonly Hook<string, any>[],
 ]
   ? First["name"] extends TTargetName
-    ? First
-    : FindHookByName<Rest, TTargetName>
+  ? First
+  : FindHookByName<Rest, TTargetName>
   : never;
 
 type FindNextHookByName<
@@ -32,12 +32,12 @@ type FindNextHookByName<
     infer First extends Hook<string, any>,
     ...infer Rest extends readonly Hook<string, any>[],
   ]
-    ? Found extends true
-      ? First // <-- immediately return the next one
-      : First["name"] extends TTargetName
-        ? FindNextHookByName<Rest, TTargetName, true>
-        : FindNextHookByName<Rest, TTargetName, false>
-    : never;
+  ? Found extends true
+  ? First // <-- immediately return the next one
+  : First["name"] extends TTargetName
+  ? FindNextHookByName<Rest, TTargetName, true>
+  : FindNextHookByName<Rest, TTargetName, false>
+  : never;
 
 export class Hooks<
   THooks extends readonly (Hook<string, (arg: unknown) => unknown>)[],
@@ -47,6 +47,7 @@ export class Hooks<
     super("Hooks");
   }
 
+  TGetFirstHook: First<THooks>
   TGetLastHookReturnType: VLastHookReturnType;
 
   TGetLastHook: Last<THooks>;
@@ -55,7 +56,20 @@ export class Hooks<
 
   };
 
-  TGetHookNames: THooks[number]["name"];
+  TGetHookNames: THooks[number]["name"] = null;
+
+  /**
+   * Places a hook at the first position. If there are no existing hooks, the hook's return type can be any type.
+   * If there are existing hooks, the hook's return type must match the argument type of the current first hook.
+   */
+  placeFirst<
+    TName extends string,
+    THook extends (arg: URecord) => THooks extends []
+      ? unknown
+      : FirstArg<First<THooks>>
+  >() {
+
+  }
 
   placeBefore<
     TExistingHookName extends THooks[number]["name"],

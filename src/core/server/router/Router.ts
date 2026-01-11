@@ -1,4 +1,4 @@
-import type { MemberAlreadyPresent, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
+import type { Extends, FirstArg, ifAny, MemberAlreadyPresent, Or, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
 import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 import { Hook, Hooks } from "../../types/Hooks/Hooks";
 import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
@@ -9,6 +9,17 @@ import type { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../client/client-builder/clientBuilder";
 import type { Request, Response } from "./routeHandler/types/IRouteHandler";
 import { TypeError } from "@blazyts/better-standard-library";
+
+
+type FilteredTuple<T extends unknown[]> = T extends [infer First, ...infer Rest]
+    ? First extends null
+    ? FilteredTuple<Rest>
+    : First
+    : null
+
+type getFromTupleWhichIsntNull<T extends unknown[]> = FilteredTuple<T>
+
+type k = getFromTupleWhichIsntNull<["", null, null]>
 
 type pathStringToObject<T extends string, C, ReturnType = {}> =
     T extends `/${infer CurrentPart}/${infer Rest}`
@@ -69,25 +80,43 @@ export class RouterObject<
         return new RouterObject(this.routerHooks, newRoutes, this.routeFinder);
     }
 
+    /* the mode is there for easier programatic access so that you do not have to type something like this 
     
-    guardReq(schema){}
+    function addHook(v: type){
+        app[type] // kinda ugly 
+    }
+    */
 
-    mapHandlerReturn(){}
 
-    mapResponse(){}
+
 
     beforeRequest<
         TName extends string,
-        THandler extends (arg: TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]) => Record<string, unknown>,
+        THandler extends (
+            arg: getFromTupleWhichIsntNull<[
+                Extends<TPlacer, "last" , ifAny<TRouterHooks["beforeRequest"]["TGetLastHookReturnType"], {}>>,
+                Extends<TPlacer, "first", {}>
+            ]>
+        ) => getFromTupleWhichIsntNull<[
+            Extends<TPlacer, "last" |, URecord>,
+            Extends<TPlacer, "first", FirstArg<TRouterHooks["beforeRequest"]["TGetFirstHook"]>>
+        ]>,
+        TPlacer extends "before" | "after" | "last" | "first"
     >(v: {
         name: TName;
         handler: THandler;
+        placer: TPlacer
     },
     ): TName extends TRouterHooks["beforeRequest"]["v"][number]["name"]
         ? MemberAlreadyPresent<"there is a hook with this name already">
         : RouterObject<
             TypeSafeOmit<TRouterHooks, "beforeRequest">
-            & { beforeRequest: Hooks<[...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]> },
+            & {
+                beforeRequest: Hooks<getFromTupleWhichIsntNull<[
+                    Extends<TPlacer,"first",[Hook<TName, THandler>, ...TRouterHooks["beforeRequest"]["v"]]>,
+                    Extends<TPlacer, "last" , [...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]>
+                ]>>
+            },
             TRoutes
         > {
 
