@@ -4,11 +4,13 @@ import { Hook, Hooks } from "../../types/Hooks/Hooks";
 import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
 import type { IRouteHandler } from "./routeHandler/types";
 import type { RouteMAtcher } from "./routeMatcher/types";
-import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { Path } from "./utils/path/Path";
-import { CleintBuilderConstructors, ClientBuilder } from "../../client/client-builder/clientBuilder";
 import type { Request, Response } from "./routeHandler/types/IRouteHandler";
-import { TypeError } from "@blazyts/better-standard-library";
+import { map, TypeError } from "@blazyts/better-standard-library";
+import { PathStringToObject } from "./types/PathStringToObject";
+import { HandlerHookTypes } from "./routeHandler/hooks/types/HandlerHookReturnTypes";
+import { RouterHooks, RouteTree } from "./hooks";
+import { RouteHandlerHooks } from "./routeHandler/hooks";
 
 
 type FilteredTuple<T extends unknown[]> = T extends [infer First, ...infer Rest]
@@ -19,25 +21,7 @@ type FilteredTuple<T extends unknown[]> = T extends [infer First, ...infer Rest]
 
 type getFromTupleWhichIsntNull<T extends unknown[]> = FilteredTuple<T>
 
-type k = getFromTupleWhichIsntNull<["", null, null]>
-
-type pathStringToObject<T extends string, C, ReturnType = {}> =
-    T extends `/${infer CurrentPart}/${infer Rest}`
-    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C> }
-    : T extends `/${infer Param}`
-    ? ReturnType & { [K in Param]: C }
-    : ReturnType
-
-// test 
-
-type j = pathStringToObject<"/user/:userId/token/:tokenId", {}, 2> // must resolve to {user: {":userId": {token: {":tokenId": string}}}}
-
-
-
-const HandlerHookTypes = ["before", "after", "last", "first"] as const
-
-type HandlerHookTypes = typeof HandlerHookTypes
-
+type k = getFromTupleWhichIsntNull<["", null, null]> // should return ""
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -67,7 +51,7 @@ export class RouterObject<
     },
     ): RouterObject<
         TRouterHooks,
-        TRoutes & pathStringToObject<TRoouteMAtcher["TGetRouteString"], THandler>
+        TRoutes & PathStringToObject<TRoouteMAtcher["TGetRouteString"], THandler>
     // TRoutes & pathStringToObject<TRoouteMAtcher["getRouteString"], {}, THandler["getClientRepresentation"]>
     > {
         const routeString = v.routeMatcher.getRouteString();
@@ -92,14 +76,14 @@ export class RouterObject<
         app[type] // kinda ugly 
     }
     */
-    beforeRequest<
+    beforeHandler<
         TName extends string,
         THandler extends (
-            arg: 
-             getFromTupleWhichIsntNull<[
-                Extends<TPlacer, "last", TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]>,
-                Extends<TPlacer, "first", {}>
-            ]>
+            arg:
+                getFromTupleWhichIsntNull<[
+                    Extends<TPlacer, "last", TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]>,
+                    Extends<TPlacer, "first", {}>
+                ]>
         ) => getFromTupleWhichIsntNull<[
             Extends<TPlacer, "last", URecord>,
             Extends<TPlacer, "first", TRouterHooks["beforeRequest"]["TGetFirstHookArgType"]>
@@ -136,16 +120,52 @@ export class RouterObject<
 
     }
 
-    createClient() {
+    afterHandler<
+        TName extends string,
+        THandler extends (
+            arg: getFromTupleWhichIsntNull<[
+                Extends<TPlacer, "last", TRouterHooks["afterRequest"]["TGetLastHookReturnType"]>,
+                Extends<TPlacer, "first", {}>
+            ]>
+        ) => getFromTupleWhichIsntNull<[
+            Extends<TPlacer, "last", URecord>,
+            Extends<TPlacer, "first", TRouterHooks["afterRequest"]["TGetFirstHookArgType"]>
+        ]>,
+        TPlacer extends HandlerHookTypes[number]
+    >(v: {
+        name: TName;
+        handler: THandler;
+        placer: TPlacer,
+    },
+    ): TName extends TRouterHooks["afterRequest"]["v"][number]["name"]
+        ? MemberAlreadyPresent<"there is a hook with this name already">
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "afterRequest">
+            & {
+                afterRequest: Hooks<getFromTupleWhichIsntNull<[
+                    Extends<TPlacer, "first", [Hook<TName, THandler>, ...TRouterHooks["afterRequest"]["v"]]>,
+                    Extends<TPlacer, "last", [...TRouterHooks["afterRequest"]["v"], Hook<TName, THandler>]>
+                ]>>
+            },
+            TRoutes
+        > {
 
-        return ClientBuilderConstructors.fromRouteTree(this.routes);
+        const updatedHooks = v.placer === "first" ? this.routerHooks.afterRequest.placeFirst(v) : this.routerHooks.afterRequest.add(v);
 
+        return new RouterObject(
+            {
+                ...this.routerHooks,
+                afterRequest: updatedHooks,
+            },
+            this.routes,
+            this.routeFinder
+        );
     }
 
     route(request: RequestObjectHelper<any, any, any>): Response {
 
         let mutReq = request.createMutableCopy()
-        const newReq = new RequestObjectHelper(this.routerHooks.beforeRequest.v.reduce((acc, v) => v.handler(acc), mutReq))
+        const newReq = map(this.routerHooks.beforeRequest.v.reduce((acc, v) => v.handler(acc), mutReq), v => new RequestObjectHelper(v))
 
         const reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
             ifNone: () => { throw new Error("Route not found") },
@@ -162,10 +182,10 @@ export class RouterObject<
         return new RouterObject(
             {
                 beforeRequest: Hooks
-                .empty()
-                .add({name: "transfrom req ", handler: v => {body: {}}}),
+                    .empty()
+                    .add({ name: "transfrom req" as const, handler: (v) => v }),
                 afterRequest: Hooks
-                .empty(),
+                    .empty(),
             },
             {
             },

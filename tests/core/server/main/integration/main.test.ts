@@ -7,7 +7,7 @@ import { RequestObjectHelper } from "../../../../../src/core/utils/RequestObject
 
 
 
-class NormalRouting<T extends string> implements RouteMAtcher<{body: {hi: string}}> {
+class NormalRouting<T extends string> implements RouteMAtcher<{ body: { hi: string } }> {
     type = "normal";
 
     constructor(private routeString: T) { }
@@ -20,38 +20,49 @@ class NormalRouting<T extends string> implements RouteMAtcher<{body: {hi: string
 
     typeInfo: TypeMarker<string>;
 
-    match(path: string): Optionable<{body: {hi: string}}> {
+    match(path: string): Optionable<{ body: { hi: string } }> {
         return this.routeString === path ? this.routeString : undefined;
     }
 
-    TGetContextType: {body: {hi: string}};
+    TGetContextType: { body: { hi: string } };
 }
 
 
 const router = RouterObject
     .empty()
-    .beforeRequest({
+    .beforeHandler({
         name: "add-token",
-        handler: (arg: {hi: string}) => ({hi: ""} as const),
+        handler: (arg: { hi: string }) => {
+            return {...arg, hi: "" } as const},
         placer: "last", // ! hooks only work with explicit usage , sucks to suck but it simplifes the interal type much more, ad since this isnt supposed to be used by the end user but instead you build on top of it
     })
-    .beforeRequest({
+    .beforeHandler({
         name: "add-user",
-        handler: arg => ({ koko: "" }),
+        handler: arg => ({...arg, koko: "" }),
         placer: "last"
     })
-    .beforeRequest({
+    .beforeHandler({
         name: "st",
         handler: v => v,
         placer: "last"
     })
-    .beforeRequest({
+    .beforeHandler({
         name: "df",
         placer: "first",
         l: 1,
-        handler: v => { 
-            return {}
+        handler: v => {
+            return {...v}
         }
+    })
+    .afterHandler({
+        name: "koko",
+        placer: "last",
+        handler: v => ({hi: "string"}),
+    })
+    .afterHandler({
+        name: "lolo",
+        placer: "last",
+        handler: v => ({ko: v.hi})
     })
     .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),
@@ -59,7 +70,7 @@ const router = RouterObject
 
         },
         handler: {
-            "handleRequest": v => v.body.body.hi
+            "handleRequest": v => "koko"
         }
     })
     // .addRoute({
@@ -76,7 +87,7 @@ const router = RouterObject
     // })
     .addRoute({
         routeMatcher: new NormalRouting("/user/:userId"),
-        handler: ctx => { return  },
+        handler: ctx => { return },
     })
 
 
@@ -88,7 +99,7 @@ console.log(
     router.route(new RequestObjectHelper({
         path: "/posts/1",
         headers: {},
-        body: {body: {hi: ""}}
+        body: { body: { hi: "" } }
     }))
 )
 
