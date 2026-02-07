@@ -38,13 +38,6 @@ const router = RouterObject
         name: "add-user",
         handler: arg => ({...arg, koko: "" }),
     })
-    .beforeRequest({
-        name: "add-user",
-        handler: arg => arg
-    })
-
-
-    l
     .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),
         hooks: {

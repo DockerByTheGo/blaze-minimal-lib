@@ -69,6 +69,13 @@ export class RouterObject<
         return new RouterObject(this.routerHooks, newRoutes, this.routeFinder);
     }
 
+    
+    guardReq(schema){}
+
+    mapHandlerReturn(){}
+
+    mapResponse(){}
+
     beforeRequest<
         TName extends string,
         THandler extends (arg: TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]) => Record<string, unknown>,
