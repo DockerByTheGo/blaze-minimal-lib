@@ -100,10 +100,6 @@ export class RouterObject<
 
     }
 
-    addRoute2<TRoute extends IRouteHandler<{ body: { koko: string } }, { body: URecord }>>(v: TRoute) {
-
-    }
-
     createClient() {
 
         return ClientBuilderConstructors.fromRouteTree(this.routes);
