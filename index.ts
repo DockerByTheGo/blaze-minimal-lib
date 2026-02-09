@@ -24,7 +24,7 @@ type MapUnionToTuple<U> = [U] extends [never] ? [] : [U, ...MapUnionToTuple<Excl
 const g: { type: "string" } | { type: "number" } = 0;
 
 type k = MapUnionToTuple<typeof g>;
-typeBasedMatch(g, {
-  number: v => v.type,
-  string: v => v.type,
-});
+// typeBasedMatch(g, {
+//   number: v => v.type,
+//   string: v => v.type,
+// });
