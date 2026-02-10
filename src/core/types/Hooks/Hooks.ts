@@ -1,4 +1,4 @@
-import type { Last } from "@blazyts/better-standard-library";
+import type { Last, URecord } from "@blazyts/better-standard-library";
 
 import { TypeMarker } from "@blazyts/better-standard-library";
 
@@ -9,6 +9,7 @@ export class Hook<
   constructor(public name: TName, public handler: THandler) { }
 
   TGetArgType: Parameters<THandler>[0];
+  TGetReturnType: ReturnType<THandler>
 }
 
 type FindHookByName<
@@ -45,6 +46,10 @@ export class Hooks<
 > extends TypeMarker<"Hooks"> {
   protected constructor(public v: THooks) {
     super("Hooks");
+  }
+
+  execute(initialValue: URecord): VLastHookReturnType {
+    return this.v.reduce((acc, hook) => hook.handler(acc), initialValue) as VLastHookReturnType;
   }
 
   TGetLastHookReturnType: VLastHookReturnType;
