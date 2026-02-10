@@ -19,8 +19,11 @@ type pathStringToObject<T extends string, C, ReturnType = {}> =
 
 // test 
 
+type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
+
 type j = pathStringToObject<"/user/:userId/token/:tokenId", {}, 2> // must resolve to {user: {":userId": {token: {":tokenId": string}}}}
 
+export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<((req: Request) => unknown)>
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -29,7 +32,7 @@ export class RouterObject<
     constructor(
         public routerHooks: TRouterHooks,
         public routes: TRoutes,
-        public routeFinder: (routes: TRoutes, path: Path<string>) => Optionable<((req: Request) => unknown)>,
+        public routeFinder: RouteFinder<TRoutes>,
     ) {
 
     }
@@ -51,7 +54,6 @@ export class RouterObject<
     ): RouterObject<
         TRouterHooks,
         TRoutes & pathStringToObject<TRoouteMAtcher["TGetRouteString"], THandler>
-    // TRoutes & pathStringToObject<TRoouteMAtcher["getRouteString"], {}, THandler["getClientRepresentation"]>
     > {
         const routeString = v.routeMatcher.getRouteString();
         const segments = routeString.split("/").filter(s => s !== "");
@@ -69,29 +71,26 @@ export class RouterObject<
         return new RouterObject(this.routerHooks, newRoutes, this.routeFinder);
     }
 
-    
-    guardReq(schema){}
 
-    mapHandlerReturn(){}
 
-    mapResponse(){}
-
-    beforeRequest<
+    beforeHandler<
         TName extends string,
-        THandler extends (arg: TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]) => Record<string, unknown>,
+        THandler extends (arg: TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]) => Record<string, unknown>,
     >(v: {
         name: TName;
         handler: THandler;
     },
-    ): TName extends TRouterHooks["beforeRequest"]["v"][number]["name"]
-        ? MemberAlreadyPresent<"there is a hook with this name already">
+    ):
+    
+    TName extends TRouterHooks["beforeHandler"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
         : RouterObject<
-            TypeSafeOmit<TRouterHooks, "beforeRequest">
-            & { beforeRequest: Hooks<[...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]> },
+            TypeSafeOmit<TRouterHooks, "beforeHandler">
+            & { beforeHandler: Hooks<[...TRouterHooks["beforeHandler"]["v"], Hook<TName, THandler>]> },
             TRoutes
         > {
 
-        this.routerHooks.beforeRequest.add({
+        this.routerHooks.beforeHandler.add({
             name: v.name,
             handler: v.handler,
         });
@@ -109,7 +108,7 @@ export class RouterObject<
     route(request: RequestObjectHelper<any, any, any>): Response {
 
         let mutReq = request.createMutableCopy()
-        const newReq = new RequestObjectHelper(this.routerHooks.beforeRequest.v.reduce((acc, v) => v.handler(acc), mutReq))
+        const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.v.reduce((acc, v) => v.handler(acc), mutReq))
 
         const reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
             ifNone: () => { throw new Error("Route not found") },
@@ -117,7 +116,7 @@ export class RouterObject<
         })
 
         // Apply after request hooks
-        return this.routerHooks.afterRequest.v.reduce((acc, hook) => hook.handler(acc), reqAfterPerformingHandler)
+        return this.routerHooks.afterHandler.v.reduce((acc, hook) => hook.handler(acc), reqAfterPerformingHandler)
 
     }
 
@@ -125,8 +124,8 @@ export class RouterObject<
 
         return new RouterObject(
             {
-                beforeRequest: Hooks.empty(),
-                afterRequest: Hooks.empty(),
+                beforeHandler: Hooks.empty(),
+                afterHandler: Hooks.empty(),
             },
             {
             },
@@ -158,4 +157,16 @@ export class RouterObject<
 
     }
 
+    afterHandler<
+        TName extends string,
+        THandler extends (arg: TRouterHooks["afterHandler"]["TGetLastHookReturnType"]) => Record<string, unknown>
+    >(name: TName, handler: THandler): TName extends TRouterHooks["afterHandler"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "afterHandler">
+            & { afterHandler: Hooks<[...TRouterHooks["afterHandler"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        return this
+    }
 }

@@ -6,11 +6,11 @@ export type RouteTree = {
 };
 
 export type RouteHandlerHooks<TRouterHooks extends RouterHooks> = {
-  beforeRequest: (arg: ReturnType<TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]["handler"]>) => Record<string, unknown>;
-  afterResponse: (arg: ReturnType<TRouterHooks["afterRequest"]["TGetLastHookReturnType"]["handler"]>) => Record<string, unknown>;
+  beforeHandler: (arg: ReturnType<TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]["handler"]>) => Record<string, unknown>;
+  afterHandler: (arg: ReturnType<TRouterHooks["afterHandler"]["TGetLastHookReturnType"]["handler"]>) => Record<string, unknown>;
 };
 
 export type RouterHooks = {
-  beforeRequest: Hooks<Hook<string, (arg: unknown) => unknown>[]>;
-  afterRequest: Hooks<Hook<string, (arg: unknown) => unknown>[]>;
+  beforeHandler: Hooks<Hook<string, (arg: unknown) => unknown>[]>;
+  afterHandler: Hooks<Hook<string, (arg: unknown) => unknown>[]>;
 };

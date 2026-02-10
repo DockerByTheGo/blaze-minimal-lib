@@ -7,7 +7,7 @@ import { RequestObjectHelper } from "../../../../../src/core/utils/RequestObject
 
 
 
-class NormalRouting<T extends string> implements RouteMAtcher<{body: {hi: string}}> {
+class NormalRouting<T extends string> implements RouteMAtcher<{ body: { hi: string } }> {
     type = "normal";
 
     constructor(private routeString: T) { }
@@ -20,23 +20,24 @@ class NormalRouting<T extends string> implements RouteMAtcher<{body: {hi: string
 
     typeInfo: TypeMarker<string>;
 
-    match(path: string): Optionable<{body: {hi: string}}> {
+    match(path: string): Optionable<{ body: { hi: string } }> {
         return this.routeString === path ? this.routeString : undefined;
     }
 
-    TGetContextType: {body: {hi: string}};
+    TGetContextType: { body: { hi: string } };
 }
 
 
 const router = RouterObject
     .empty()
-    .beforeRequest({
+    .beforeHandler({
         name: "add-token",
-        handler: arg => ({hi: ""} as const),
+        handler: arg => ({ hi: "" } as const),
+        
     })
-    .beforeRequest({
+    .beforeHandler({
         name: "add-user",
-        handler: arg => ({...arg, koko: "" }),
+        handler: arg => ({ ...arg, koko: "" }),
     })
     .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),
@@ -61,9 +62,12 @@ const router = RouterObject
     // })
     .addRoute({
         routeMatcher: new NormalRouting("/user/:userId"),
-        handler: ctx => { return  },
+        handler: ctx => { return },
     })
+    .afterHandler("koko", arg => ({hi: ""} as const))
+    .afterHandler("okko", v => v.hi)
 
+    
 
 
 
@@ -73,7 +77,7 @@ console.log(
     router.route(new RequestObjectHelper({
         path: "/posts/1",
         headers: {},
-        body: {body: {hi: ""}}
+        body: { body: { hi: "" } }
     }))
 )
 
