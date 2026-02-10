@@ -63,9 +63,17 @@ const router = RouterObject
     .addRoute({
         routeMatcher: new NormalRouting("/user/:userId"),
         handler: ctx => { return },
+        hooks: {
+            onError: v => {}
+        }
     })
     .afterHandler("koko", arg => ({hi: ""} as const))
     .afterHandler("okko", v => v.hi)
+    .onError({name: "logger", handler: v => {
+        console.log(v)
+    }})
+    .onError({name: "dd", handler: v => ({as: ""})})
+    .onError({name: "kko", handler: v => v.as})
 
     
 

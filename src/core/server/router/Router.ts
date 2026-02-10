@@ -42,7 +42,7 @@ export class RouterObject<
         THandlerReturn extends Response,
         THooks extends RouteHandlerHooks<TRouterHooks>,
         THandler extends IRouteHandler<
-            { body: TRoouteMAtcher["TGetContextType"] },
+            { body: TRoouteMAtcher["TGetContextType"] & ReturnType<THooks["beforeHandler"]>}, // support for adding multiple local hooks in the future 
             THandlerReturn
         >,
 
@@ -67,7 +67,14 @@ export class RouterObject<
             current = current[segment];
         }
         const last = segments[segments.length - 1];
-        current[last] = v.handler;
+        very buggy fix it 
+        current[last] = args => {
+            try{
+                v.handler(args)
+            }catch(e){
+                v.hooks.onError(e)
+            }
+        } v.handler;
         return new RouterObject(this.routerHooks, newRoutes, this.routeFinder);
     }
 
@@ -175,7 +182,7 @@ export class RouterObject<
 
     onError<
         TName extends string,
-        THandler extends (error: Error) => unknown
+        THandler extends (arg: TRouterHooks["onError"]["TGetLastHookReturnType"]) => URecord
     >(v: {
         name: TName;
         handler: THandler;
@@ -195,7 +202,7 @@ export class RouterObject<
 
     onStartup<
         TName extends string,
-        THandler extends () => unknown
+        THandler extends (arg: TRouterHooks["onStartup"]["TGetLastHookReturnType"]) => URecord
     >(v: {
         name: TName;
         handler: THandler;
