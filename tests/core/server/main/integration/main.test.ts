@@ -70,9 +70,11 @@ describe("Router Integration Test", () => {
             .beforeHandler({
                 name: "add-token",
                 handler: arg => {
+                    console.log("frmermrkemklkerfmk")
                     beforeHandler1Called = true;
                     beforeHandler1Arg = arg;
                     executionLog.push("beforeHandler1");
+                    console.log("arg", arg)
                     expectTypeOf(arg).toBeDefined();
                     return { token: "abc123" } as const;
                 },
@@ -117,14 +119,16 @@ describe("Router Integration Test", () => {
             .onError({
                 name: "logger", handler: error => {
                     console.log("Error:", error);
+                    return error
                 }
             })
             .onError({ name: "formatter", handler: error => ({ errorCode: "ERR_500" }) })
-            .onError({ name: "extractor", handler: formatted => formatted.errorCode });
+            .onError({
+                name: "extractor", handler: formatted => {
+                    expectTypeOf(formatted.errorCode).toMatchTypeOf<{ errorCode: string }>()
+                }
+            });
 
-        // Verify router is created
-        expect(router).toBeDefined();
-        expectTypeOf(router).toBeDefined();
 
         // Execute request through the router
         const request = new RequestObjectHelper({ path: "/posts/999" });

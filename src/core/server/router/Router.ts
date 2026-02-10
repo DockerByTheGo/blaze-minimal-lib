@@ -96,7 +96,6 @@ export class RouterObject<
             & { beforeHandler: Hooks<[...TRouterHooks["beforeHandler"]["v"], Hook<TName, THandler>]> },
             TRoutes
         > {
-
         this.routerHooks.beforeHandler.add({
             name: v.name,
             handler: v.handler,
