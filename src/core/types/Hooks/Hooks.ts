@@ -98,6 +98,9 @@ export class Hooks<
   }
 }
 
+
+export type HooksDefault = Hooks<Hook<string, (arg: unknown) => unknown>[]>
+
 const h = Hooks
   .empty()
   .add({

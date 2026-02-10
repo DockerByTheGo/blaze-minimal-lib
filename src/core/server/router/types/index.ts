@@ -1,4 +1,5 @@
-import type { Hook, Hooks } from "../../../types/Hooks/Hooks";
+import { URecord } from "@blazyts/better-standard-library";
+import type { Hook, Hooks, HooksDefault } from "../../../types/Hooks/Hooks";
 import type { IRouteHandler, Request, Response } from "../routeHandler";
 
 export type RouteTree = {
@@ -6,11 +7,15 @@ export type RouteTree = {
 };
 
 export type RouteHandlerHooks<TRouterHooks extends RouterHooks> = {
-  beforeHandler: (arg: ReturnType<TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]["handler"]>) => Record<string, unknown>;
-  afterHandler: (arg: ReturnType<TRouterHooks["afterHandler"]["TGetLastHookReturnType"]["handler"]>) => Record<string, unknown>;
+  beforeHandler: (arg: ReturnType<TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]["handler"]>) => URecord;
+  afterHandler: (arg: ReturnType<TRouterHooks["afterHandler"]["TGetLastHookReturnType"]["handler"]>) => URecord;
+  onError: (arg: ReturnType<TRouterHooks["onError"]["TGetLastHookReturnType"]["handler"]>) => URecord
 };
 
 export type RouterHooks = {
-  beforeHandler: Hooks<Hook<string, (arg: unknown) => unknown>[]>;
-  afterHandler: Hooks<Hook<string, (arg: unknown) => unknown>[]>;
+  beforeHandler: HooksDefault;
+  afterHandler: HooksDefault;
+  onError: HooksDefault;
+  onStartup: HooksDefault;
+  onShutdown: HooksDefault;
 };

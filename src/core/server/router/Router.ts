@@ -81,8 +81,8 @@ export class RouterObject<
         handler: THandler;
     },
     ):
-    
-    TName extends TRouterHooks["beforeHandler"]["v"][number]["name"]
+
+        TName extends TRouterHooks["beforeHandler"]["v"][number]["name"]
         ? HookWithThisNameAlreadyExists
         : RouterObject<
             TypeSafeOmit<TRouterHooks, "beforeHandler">
@@ -126,6 +126,9 @@ export class RouterObject<
             {
                 beforeHandler: Hooks.empty(),
                 afterHandler: Hooks.empty(),
+                onError: Hooks.empty(),
+                onStartup: Hooks.empty(),
+                onShutdown: Hooks.empty(),
             },
             {
             },
@@ -168,5 +171,65 @@ export class RouterObject<
             TRoutes
         > {
         return this
+    }
+
+    onError<
+        TName extends string,
+        THandler extends (error: Error) => unknown
+    >(v: {
+        name: TName;
+        handler: THandler;
+    }): TName extends TRouterHooks["onError"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "onError">
+            & { onError: Hooks<[...TRouterHooks["onError"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.onError.add({
+            name: v.name,
+            handler: v.handler,
+        });
+        return this as any;
+    }
+
+    onStartup<
+        TName extends string,
+        THandler extends () => unknown
+    >(v: {
+        name: TName;
+        handler: THandler;
+    }): TName extends TRouterHooks["onStartup"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "onStartup">
+            & { onStartup: Hooks<[...TRouterHooks["onStartup"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.onStartup.add({
+            name: v.name,
+            handler: v.handler,
+        });
+        return this as any;
+    }
+
+    onShutdown<
+        TName extends string,
+        THandler extends () => unknown
+    >(v: {
+        name: TName;
+        handler: THandler;
+    }): TName extends TRouterHooks["onShutdown"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "onShutdown">
+            & { onShutdown: Hooks<[...TRouterHooks["onShutdown"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.onShutdown.add({
+            name: v.name,
+            handler: v.handler,
+        });
+        return this as any;
     }
 }
