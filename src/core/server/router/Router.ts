@@ -1,4 +1,4 @@
-import type { MemberAlreadyPresent, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
+import type { ifAny, MemberAlreadyPresent, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
 import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 import { Hook, Hooks } from "../../types/Hooks/Hooks";
 import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
@@ -8,7 +8,8 @@ import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../client/client-builder/clientBuilder";
 import type { Request, Response } from "./routeHandler/types/IRouteHandler";
-import { TypeError } from "@blazyts/better-standard-library";
+import { composeCatch, panic, TypeError } from "@blazyts/better-standard-library";
+import { IfAnyThenEmptyObject } from "hono/utils/types";
 
 type pathStringToObject<T extends string, C, ReturnType = {}> =
     T extends `/${infer CurrentPart}/${infer Rest}`
@@ -40,9 +41,9 @@ export class RouterObject<
     addRoute<
         TRoouteMAtcher extends RouteMAtcher<URecord>,
         THandlerReturn extends Response,
-        THooks extends RouteHandlerHooks<TRouterHooks>,
+        THooks extends Partial<RouteHandlerHooks<TRouterHooks>>,
         THandler extends IRouteHandler<
-            { body: TRoouteMAtcher["TGetContextType"] & ReturnType<THooks["beforeHandler"]>}, // support for adding multiple local hooks in the future 
+            { body: TRoouteMAtcher["TGetContextType"] & (ifAny<ReturnType<THooks["beforeHandler"]>, TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]>) }, // support for adding multiple local hooks in the future 
             THandlerReturn
         >,
 
@@ -67,14 +68,13 @@ export class RouterObject<
             current = current[segment];
         }
         const last = segments[segments.length - 1];
-        very buggy fix it 
-        current[last] = args => {
-            try{
-                v.handler(args)
-            }catch(e){
-                v.hooks.onError(e)
-            }
-        } v.handler;
+        const modifiedHandler: IRouteHandler<any, any> = {
+            ...v.handler,
+            handleRequest: arg => composeCatch(v.handler.handleRequest, v.hooks.onError ?? (e => panic(JSON.stringify(e))))
+        }
+
+        current[last] = modifiedHandler
+
         return new RouterObject(this.routerHooks, newRoutes, this.routeFinder);
     }
 
@@ -115,15 +115,18 @@ export class RouterObject<
     route(request: RequestObjectHelper<any, any, any>): Response {
 
         let mutReq = request.createMutableCopy()
-        const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.v.reduce((acc, v) => v.handler(acc), mutReq))
+        try {
+            const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.execute(mutReq))
 
-        const reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
-            ifNone: () => { throw new Error("Route not found") },
-            ifNotNone: v => v(newReq)
-        })
+            const reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
+                ifNone: () => { throw new Error("Route not found") },
+                ifNotNone: v => v(newReq)
+            })
 
-        // Apply after request hooks
-        return this.routerHooks.afterHandler.v.reduce((acc, hook) => hook.handler(acc), reqAfterPerformingHandler)
+            return this.routerHooks.afterHandler.execute(reqAfterPerformingHandler)
+        } catch (e) {
+            return this.routerHooks.onError.execute(e)
+        }
 
     }
 
@@ -222,7 +225,7 @@ export class RouterObject<
 
     onShutdown<
         TName extends string,
-        THandler extends () => unknown
+        THandler extends (arg: TRouterHooks["onShutdown"]["TGetLastHookReturnType"]) => URecord
     >(v: {
         name: TName;
         handler: THandler;
