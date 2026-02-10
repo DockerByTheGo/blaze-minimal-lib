@@ -70,11 +70,9 @@ describe("Router Integration Test", () => {
             .beforeHandler({
                 name: "add-token",
                 handler: arg => {
-                    console.log("frmermrkemklkerfmk")
                     beforeHandler1Called = true;
                     beforeHandler1Arg = arg;
                     executionLog.push("beforeHandler1");
-                    console.log("arg", arg)
                     expectTypeOf(arg).toBeDefined();
                     return { token: "abc123" } as const;
                 },
@@ -118,7 +116,6 @@ describe("Router Integration Test", () => {
             })
             .onError({
                 name: "logger", handler: error => {
-                    console.log("Error:", error);
                     return error
                 }
             })

@@ -49,7 +49,7 @@ export class Hooks<
   }
 
   execute(initialValue: URecord): VLastHookReturnType {
-    return this.v.reduce((acc, hook) => {console.log("frfr"); return hook.handler(acc) }, initialValue) as VLastHookReturnType;
+    return this.v.reduce((acc, hook) =>   hook.handler(acc) , initialValue) as VLastHookReturnType;
   }
 
   TGetLastHookReturnType: VLastHookReturnType;
