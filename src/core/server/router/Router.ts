@@ -8,7 +8,7 @@ import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../client/client-builder/clientBuilder";
 import type { Request, Response } from "./routeHandler/types/IRouteHandler";
-import { composeCatch, panic, TypeError } from "@blazyts/better-standard-library";
+import { catchF, composeCatch, LOG, panic, TypeError } from "@blazyts/better-standard-library";
 import { IfAnyThenEmptyObject } from "hono/utils/types";
 
 type pathStringToObject<T extends string, C, ReturnType = {}> =
@@ -24,7 +24,7 @@ type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with 
 
 type j = pathStringToObject<"/user/:userId/token/:tokenId", {}, 2> // must resolve to {user: {":userId": {token: {":tokenId": string}}}}
 
-export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<((req: Request) => unknown)>
+export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandler<any, any>>
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -70,7 +70,7 @@ export class RouterObject<
         const last = segments[segments.length - 1];
         const modifiedHandler: IRouteHandler<any, any> = {
             ...v.handler,
-            handleRequest: arg => composeCatch(v.handler.handleRequest, v.hooks.onError ?? (e => panic(JSON.stringify(e))))
+            handleRequest: arg => catchF(() => v.handler.handleRequest(arg), v.hooks.onError ?? (e => panic(JSON.stringify(e))))
         }
 
         current[last] = modifiedHandler
@@ -82,7 +82,7 @@ export class RouterObject<
 
     beforeHandler<
         TName extends string,
-        THandler extends (arg: TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]) => Record<string, unknown>,
+        THandler extends (arg: TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]) => { path: string },
     >(v: {
         name: TName;
         handler: THandler;
@@ -117,13 +117,23 @@ export class RouterObject<
         try {
             const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.execute(mutReq))
 
-            const reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
-                ifNone: () => { throw new Error("Route not found") },
-                ifNotNone: v => v(newReq)
-            })
+            console.log("fkkfkfkf")
+            const reqAfterPerformingHandler = this
+                .routeFinder(this.routes, newReq.path)
+                .try({
+                    ifNone: () => { throw new Error("Route not found") },
+                    ifNotNone: v => {
+                        console.log("lpl", v);
+                        const result = v.handleRequest(newReq);
+                        console.log("ddd", result());
+                        return result;
+                    }
+                })
+            console.log("lpll", reqAfterPerformingHandler)
 
             return this.routerHooks.afterHandler.execute(reqAfterPerformingHandler)
         } catch (e) {
+            LOG("error", e)
             return this.routerHooks.onError.execute(e)
         }
 
@@ -157,10 +167,9 @@ export class RouterObject<
                     }
                     return Optionable.none();
                 }
-                if (typeof current === 'function') {
+                if (current && 'handleRequest' in current) {
+                    console.log("f", current)
                     return Optionable.some(current);
-                } else if (current && 'handleRequest' in current) {
-                    return Optionable.some((req: Request) => current.handleRequest(req));
                 }
                 return Optionable.none();
             }

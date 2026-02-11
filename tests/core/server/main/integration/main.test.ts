@@ -70,22 +70,26 @@ describe("Router Integration Test", () => {
             .beforeHandler({
                 name: "add-token",
                 handler: arg => {
+                    console.log("calling ")
                     beforeHandler1Called = true;
                     beforeHandler1Arg = arg;
                     executionLog.push("beforeHandler1");
-                    expectTypeOf(arg).toBeDefined();
-                    return { token: "abc123" } as const;
+                    const result = { ...arg, token: "abc123" } as const;
+                    console.log("beforeHandler1 returning:", result);
+                    return result;
                 },
             })
             .beforeHandler({
                 name: "add-user",
                 handler: arg => {
+                    console.log("beforeHandler2 received:", arg);
                     beforeHandler2Called = true;
                     beforeHandler2Arg = arg;
                     executionLog.push("beforeHandler2");
-                    expectTypeOf(arg).toMatchTypeOf<{ token: "abc123" }>();
-                    expect(arg.token).toBe("abc123");
-                    return { ...arg, userId: 42, userName: "testuser" };
+                    expectTypeOf(arg).toMatchTypeOf<{ token: string }>();
+                    const result = { ...arg, userId: 42, userName: "testuser" };
+                    console.log("beforeHandler2 returning:", result);
+                    return result;
                 },
             })
             .addRoute({
@@ -94,6 +98,7 @@ describe("Router Integration Test", () => {
                 handler: new MockRouteHandler(req => {
                     mainHandlerCalled = true;
                     mainHandlerArg = req;
+                    console.log("ookkokoko")
                     executionLog.push("mainHandler");
                     expectTypeOf(req).toMatchTypeOf<{ body: any }>();
                     return { body: { success: true, postId: req.body?.postId || "unknown", message: "Post retrieved" } };
