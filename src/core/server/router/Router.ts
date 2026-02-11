@@ -125,7 +125,6 @@ export class RouterObject<
                     ifNotNone: v => {
                         console.log("lpl", v);
                         const result = v.handleRequest(newReq);
-                        console.log("ddd", result());
                         return result;
                     }
                 })
@@ -188,7 +187,11 @@ export class RouterObject<
             & { afterHandler: Hooks<[...TRouterHooks["afterHandler"]["v"], Hook<TName, THandler>]> },
             TRoutes
         > {
-        return this
+        this.routerHooks.afterHandler.add({
+            name: name,
+            handler: handler,
+        });
+        return this as any;
     }
 
     onError<

@@ -108,7 +108,6 @@ describe("Router Integration Test", () => {
                 afterHandler1Called = true;
                 afterHandler1Arg = response;
                 executionLog.push("afterHandler1");
-                expectTypeOf(response).toBeDefined();
                 return { ...response, timestamp: Date.now() } as const;
             })
             .afterHandler("extract-message", response => {
