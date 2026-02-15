@@ -60,6 +60,7 @@ export class RouterObject<
         const segments = routeString.split("/").filter(s => s !== "");
         const newRoutes = { ...this.routes };
         let current: any = newRoutes;
+        // traverse the tree until we get to the last known branch 
         for (let i = 0; i < segments.length - 1; i++) {
             const segment = segments[i];
             if (!current[segment] || (typeof current[segment] === "object" && !("handler" in current[segment]))) {
@@ -117,18 +118,17 @@ export class RouterObject<
         try {
             const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.execute(mutReq))
 
-            console.log("fkkfkfkf")
             const reqAfterPerformingHandler = this
                 .routeFinder(this.routes, newReq.path)
                 .try({
                     ifNone: () => { throw new Error("Route not found") },
                     ifNotNone: v => {
-                        console.log("lpl", v);
                         const result = v.handleRequest(newReq);
+
+                        console.log("gg", result)
                         return result;
                     }
                 })
-            console.log("lpll", reqAfterPerformingHandler)
 
             return this.routerHooks.afterHandler.execute(reqAfterPerformingHandler)
         } catch (e) {
