@@ -1,6 +1,6 @@
-import { Client, ClientConstructors, Routes } from "../../../src/core/client/Client";
-import { Config } from "../../../src/core/client/types/Config";
-import { ClientHooks } from "../../../src/core/client/types/ClientHooks";
+import { Client, ClientConstructors, Routes } from "../../../../blazy-edge/docs/components/client/Client";
+import { Config } from "../../../../blazy-edge/docs/components/client/types/Config";
+import { ClientHooks } from "../../../../blazy-edge/docs/components/client/types/ClientHooks";
 import { Hooks } from "../../../src/core/types/Hooks/Hooks";
 import { RouteTree } from "../../../src/core/server/router/types";
 

@@ -6,7 +6,7 @@ import type { IRouteHandler } from "./routeHandler/types";
 import type { RouteMAtcher } from "./routeMatcher/types";
 import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { Path } from "./utils/path/Path";
-import { CleintBuilderConstructors, ClientBuilder } from "../../client/client-builder/clientBuilder";
+import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/docs/components/client/client-builder/clientBuilder";
 import type { Request, Response } from "./routeHandler/types/IRouteHandler";
 import { catchF, composeCatch, LOG, panic, TypeError } from "@blazyts/better-standard-library";
 import { IfAnyThenEmptyObject } from "hono/utils/types";
