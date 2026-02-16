@@ -1,4 +1,4 @@
-import { CleintBuilderConstructors, ClientBuilder } from "../../../src/core/client/client-builder/clientBuilder";
+import { CleintBuilderConstructors, ClientBuilder } from "../../../../blazy-edge/docs/components/client/client-builder/clientBuilder";
 import { Hooks } from "../../../src/core/types/Hooks/Hooks";
 import { RouteTree } from "../../../src/core/server/router/types";
 
