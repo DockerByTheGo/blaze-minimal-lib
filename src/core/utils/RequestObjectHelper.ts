@@ -13,7 +13,7 @@ export class RequestObjectHelper<
     public readonly properties: {
       body: TBodySchema;
       headers: THeaders;
-      path: TPath
+      path: TPath,
     },
   ) {
 
@@ -24,7 +24,7 @@ export class RequestObjectHelper<
     safeAccess: TBodySchema;
   } {
     return {
-      ...this.properties,
+      ...this.properties.body,
       getUnsafe: (property: string) => {
         return this.properties.body[property];
       },

@@ -48,7 +48,7 @@ export class Client<TRouteTree extends RouteTree> {
 
     batch(v: Routes<RouteTree>) {
 
-    } // send multiple requests as one to avoid multiple hadnshakes
+    } // send multiple requests as one to avoid multiple hadnshakes, you recieve all th responses from it in one connection
 
 
     /* 

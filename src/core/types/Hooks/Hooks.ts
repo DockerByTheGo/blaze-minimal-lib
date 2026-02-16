@@ -1,4 +1,4 @@
-import type { Last } from "@blazyts/better-standard-library";
+import type { Last, URecord } from "@blazyts/better-standard-library";
 
 import { TypeMarker } from "@blazyts/better-standard-library";
 
@@ -9,6 +9,7 @@ export class Hook<
   constructor(public name: TName, public handler: THandler) { }
 
   TGetArgType: Parameters<THandler>[0];
+  TGetReturnType: ReturnType<THandler>
 }
 
 type FindHookByName<
@@ -19,8 +20,8 @@ type FindHookByName<
   ...infer Rest extends readonly Hook<string, any>[],
 ]
   ? First["name"] extends TTargetName
-    ? First
-    : FindHookByName<Rest, TTargetName>
+  ? First
+  : FindHookByName<Rest, TTargetName>
   : never;
 
 type FindNextHookByName<
@@ -32,19 +33,23 @@ type FindNextHookByName<
     infer First extends Hook<string, any>,
     ...infer Rest extends readonly Hook<string, any>[],
   ]
-    ? Found extends true
-      ? First // <-- immediately return the next one
-      : First["name"] extends TTargetName
-        ? FindNextHookByName<Rest, TTargetName, true>
-        : FindNextHookByName<Rest, TTargetName, false>
-    : never;
+  ? Found extends true
+  ? First // <-- immediately return the next one
+  : First["name"] extends TTargetName
+  ? FindNextHookByName<Rest, TTargetName, true>
+  : FindNextHookByName<Rest, TTargetName, false>
+  : never;
 
 export class Hooks<
-  THooks extends readonly (Hook<string, (arg: unknown) => unknown>)[],
+  THooks extends (Hook<string, (arg: unknown) => unknown>)[],
   VLastHookReturnType = ReturnType<Last<THooks>["handler"]>,
 > extends TypeMarker<"Hooks"> {
   protected constructor(public v: THooks) {
     super("Hooks");
+  }
+
+  execute(initialValue: URecord): VLastHookReturnType {
+    return this.v.reduce((acc, hook) => { ; return hook.handler(acc) }, initialValue) as VLastHookReturnType;
   }
 
   TGetLastHookReturnType: VLastHookReturnType;
@@ -79,10 +84,11 @@ export class Hooks<
     handler: THookHandler;
   },
   ): Hooks<[...THooks, Hook<THookName, THookHandler>]> {
-    return new Hooks([
-      ...this.v,
+    this.v.push(
       new Hook(v.name, v.handler),
-    ]);
+    );
+
+    return this as any
   }
 
   static new() {
@@ -97,6 +103,9 @@ export class Hooks<
     return new Hooks(v.v);
   }
 }
+
+
+export type HooksDefault = Hooks<Hook<string, (arg: unknown) => unknown>[]>
 
 const h = Hooks
   .empty()

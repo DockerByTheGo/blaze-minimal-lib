@@ -1,4 +1,4 @@
-import type { TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
+import type { ifAny, MemberAlreadyPresent, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
 import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 import { Hook, Hooks } from "../../types/Hooks/Hooks";
 import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
@@ -7,20 +7,24 @@ import type { RouteMAtcher } from "./routeMatcher/types";
 import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../client/client-builder/clientBuilder";
-import type { Request } from "./routeHandler/types/IRouteHandler";
-
+import type { Request, Response } from "./routeHandler/types/IRouteHandler";
+import { catchF, composeCatch, LOG, panic, TypeError } from "@blazyts/better-standard-library";
+import { IfAnyThenEmptyObject } from "hono/utils/types";
 
 type pathStringToObject<T extends string, C, ReturnType = {}> =
     T extends `/${infer CurrentPart}/${infer Rest}`
-    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C >}
+    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C> }
     : T extends `/${infer Param}`
     ? ReturnType & { [K in Param]: C }
     : ReturnType
 
 // test 
 
+type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
+
 type j = pathStringToObject<"/user/:userId/token/:tokenId", {}, 2> // must resolve to {user: {":userId": {token: {":tokenId": string}}}}
 
+export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandler<any, any>>
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -29,20 +33,20 @@ export class RouterObject<
     constructor(
         public routerHooks: TRouterHooks,
         public routes: TRoutes,
-        public routeFinder: (routes: TRoutes, path: Path<string>) => Optionable<((req: Request) => unknown)>,
+        public routeFinder: RouteFinder<TRoutes>,
     ) {
 
     }
 
     addRoute<
-        TRoouteMAtcher extends RouteMAtcher<unknown>,
+        TRoouteMAtcher extends RouteMAtcher<URecord>,
         THandlerReturn extends Response,
-        THooks extends RouteHandlerHooks<TRouterHooks>,
+        THooks extends Partial<RouteHandlerHooks<TRouterHooks>>,
         THandler extends IRouteHandler<
-            { body: TRoouteMAtcher["TGetContextType"] },
+            { body: TRoouteMAtcher["TGetContextType"] & (ifAny<ReturnType<THooks["beforeHandler"]>, TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]>) }, // support for adding multiple local hooks in the future 
             THandlerReturn
         >,
-        
+
     >(v: {
         routeMatcher: TRoouteMAtcher;
         handler: THandler;
@@ -51,12 +55,12 @@ export class RouterObject<
     ): RouterObject<
         TRouterHooks,
         TRoutes & pathStringToObject<TRoouteMAtcher["TGetRouteString"], THandler>
-    // TRoutes & pathStringToObject<TRoouteMAtcher["getRouteString"], {}, THandler["getClientRepresentation"]>
     > {
         const routeString = v.routeMatcher.getRouteString();
         const segments = routeString.split("/").filter(s => s !== "");
         const newRoutes = { ...this.routes };
         let current: any = newRoutes;
+        // traverse the tree until we get to the last known branch 
         for (let i = 0; i < segments.length - 1; i++) {
             const segment = segments[i];
             if (!current[segment] || (typeof current[segment] === "object" && !("handler" in current[segment]))) {
@@ -65,24 +69,35 @@ export class RouterObject<
             current = current[segment];
         }
         const last = segments[segments.length - 1];
-        current[last] = v.handler;
+        const modifiedHandler: IRouteHandler<any, any> = {
+            ...v.handler,
+            handleRequest: arg => catchF(() => v.handler.handleRequest(arg), v.hooks.onError ?? (e => panic(JSON.stringify(e))))
+        }
+
+        current[last] = modifiedHandler
+
         return new RouterObject(this.routerHooks, newRoutes, this.routeFinder);
     }
 
-    beforeRequest<
+
+
+    beforeHandler<
         TName extends string,
-        THandler extends (arg: TRouterHooks["beforeRequest"]["TGetLastHookReturnType"]) => Record<string, unknown>,
+        THandler extends (arg: TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]) => { path: string },
     >(v: {
         name: TName;
         handler: THandler;
     },
-    ): RouterObject<
-        TypeSafeOmit<TRouterHooks, "beforeRequest">
-        & { beforeRequest: Hooks<[...TRouterHooks["beforeRequest"]["v"], Hook<TName, THandler>]> },
-        TRoutes
-    > {
+    ):
 
-        this.routerHooks.beforeRequest.add({
+        TName extends TRouterHooks["beforeHandler"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "beforeHandler">
+            & { beforeHandler: Hooks<[...TRouterHooks["beforeHandler"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.beforeHandler.add({
             name: v.name,
             handler: v.handler,
         });
@@ -91,27 +106,35 @@ export class RouterObject<
 
     }
 
-    addRoute2<TRoute extends IRouteHandler<{ body: { koko: string } }, { body: URecord }>>(v: TRoute) {
+    createClient() {
 
-    }
-
-    createCleint() {
-
-        return CleintBuilderConstructors.fromRouteTree(this.routes);
+        return ClientBuilderConstructors.fromRouteTree(this.routes);
 
     }
 
     route(request: RequestObjectHelper<any, any, any>): Response {
 
         let mutReq = request.createMutableCopy()
-        const newReq = new RequestObjectHelper(this.routerHooks.beforeRequest.v.reduce((acc, v) => v.handler(acc), mutReq))
+        try {
+            const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.execute(mutReq))
 
-        let reqAfterPerformingHandler = this.routeFinder(this.routes, newReq.path).try({
-            ifNone: () => "none",
-            ifNotNone: v => v(newReq)
-        })
+            const reqAfterPerformingHandler = this
+                .routeFinder(this.routes, newReq.path)
+                .try({
+                    ifNone: () => { throw new Error("Route not found") },
+                    ifNotNone: v => {
+                        const result = v.handleRequest(newReq);
 
-        return this.routerHooks.afterRequest.v.reduce()
+                        console.log("gg", result)
+                        return result;
+                    }
+                })
+
+            return this.routerHooks.afterHandler.execute(reqAfterPerformingHandler)
+        } catch (e) {
+            LOG("error", e)
+            return this.routerHooks.onError.execute(e)
+        }
 
     }
 
@@ -119,8 +142,11 @@ export class RouterObject<
 
         return new RouterObject(
             {
-                beforeRequest: Hooks.empty(),
-                afterResponse: Hooks.empty(),
+                beforeHandler: Hooks.empty(),
+                afterHandler: Hooks.empty(),
+                onError: Hooks.empty(),
+                onStartup: Hooks.empty(),
+                onShutdown: Hooks.empty(),
             },
             {
             },
@@ -140,10 +166,9 @@ export class RouterObject<
                     }
                     return Optionable.none();
                 }
-                if (typeof current === 'function') {
+                if (current && 'handleRequest' in current) {
+                    console.log("f", current)
                     return Optionable.some(current);
-                } else if (current && 'handleRequest' in current) {
-                    return Optionable.some((req: Request) => current.handleRequest(req));
                 }
                 return Optionable.none();
             }
@@ -152,4 +177,80 @@ export class RouterObject<
 
     }
 
+    afterHandler<
+        TName extends string,
+        THandler extends (arg: TRouterHooks["afterHandler"]["TGetLastHookReturnType"]) => Record<string, unknown>
+    >(name: TName, handler: THandler): TName extends TRouterHooks["afterHandler"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "afterHandler">
+            & { afterHandler: Hooks<[...TRouterHooks["afterHandler"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.afterHandler.add({
+            name: name,
+            handler: handler,
+        });
+        return this as any;
+    }
+
+    onError<
+        TName extends string,
+        THandler extends (arg: TRouterHooks["onError"]["TGetLastHookReturnType"]) => URecord
+    >(v: {
+        name: TName;
+        handler: THandler;
+    }): TName extends TRouterHooks["onError"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "onError">
+            & { onError: Hooks<[...TRouterHooks["onError"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.onError.add({
+            name: v.name,
+            handler: v.handler,
+        });
+        return this as any;
+    }
+
+    onStartup<
+        TName extends string,
+        THandler extends (arg: TRouterHooks["onStartup"]["TGetLastHookReturnType"]) => URecord
+    >(v: {
+        name: TName;
+        handler: THandler;
+    }): TName extends TRouterHooks["onStartup"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "onStartup">
+            & { onStartup: Hooks<[...TRouterHooks["onStartup"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.onStartup.add({
+            name: v.name,
+            handler: v.handler,
+        });
+        return this as any;
+    }
+
+    onShutdown<
+        TName extends string,
+        THandler extends (arg: TRouterHooks["onShutdown"]["TGetLastHookReturnType"]) => URecord
+    >(v: {
+        name: TName;
+        handler: THandler;
+    }): TName extends TRouterHooks["onShutdown"]["v"][number]["name"]
+        ? HookWithThisNameAlreadyExists
+        : RouterObject<
+            TypeSafeOmit<TRouterHooks, "onShutdown">
+            & { onShutdown: Hooks<[...TRouterHooks["onShutdown"]["v"], Hook<TName, THandler>]> },
+            TRoutes
+        > {
+        this.routerHooks.onShutdown.add({
+            name: v.name,
+            handler: v.handler,
+        });
+        return this as any;
+    }
 }
