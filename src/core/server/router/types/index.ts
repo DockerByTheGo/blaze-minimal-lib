@@ -19,3 +19,11 @@ export type RouterHooks = {
   onStartup: HooksDefault;
   onShutdown: HooksDefault;
 };
+
+
+export type pathStringToObject<T extends string, C, ReturnType = {}> =
+    T extends `/${infer CurrentPart}/${infer Rest}`
+    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C> }
+    : T extends `/${infer Param}`
+    ? ReturnType & { [K in Param]: C }
+    : ReturnType

@@ -4,25 +4,14 @@ import { Hook, Hooks } from "../../types/Hooks/Hooks";
 import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
 import type { IRouteHandler } from "./routeHandler/types";
 import type { RouteMAtcher } from "./routeMatcher/types";
-import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
+import type { pathStringToObject, RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/src/client/client-builder/clientBuilder";
 import type { Request, Response } from "./routeHandler/types/IRouteHandler";
 import { catchF, composeCatch, LOG, panic, TypeError } from "@blazyts/better-standard-library";
-import { IfAnyThenEmptyObject } from "hono/utils/types";
-
-type pathStringToObject<T extends string, C, ReturnType = {}> =
-    T extends `/${infer CurrentPart}/${infer Rest}`
-    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C> }
-    : T extends `/${infer Param}`
-    ? ReturnType & { [K in Param]: C }
-    : ReturnType
-
-// test 
 
 type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
 
-type j = pathStringToObject<"/user/:userId/token/:tokenId", {}, 2> // must resolve to {user: {":userId": {token: {":tokenId": string}}}}
 
 export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandler<any, any>>
 
