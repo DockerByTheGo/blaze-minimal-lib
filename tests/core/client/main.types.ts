@@ -16,12 +16,6 @@ const config: Config = {
     retries: 3,
 };
 
-const hooks: ClientHooks = {
-    beforeSend: Hooks.empty(),
-    afterReceive: Hooks.empty(),
-    onErrored: Hooks.empty(),
-};
-
 const clientWithRoutes = constructors.fromRoutes({} as any);
 clientWithRoutes satisfies Client<any>;
 
