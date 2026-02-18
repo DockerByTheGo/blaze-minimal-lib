@@ -109,11 +109,10 @@ export class RouterObject<
             const reqAfterPerformingHandler = this
                 .routeFinder(this.routes, newReq.path)
                 .try({
-                    ifNone: () => { throw new Error("Route not found") },
+                    ifNone: () => { panic("Route not found") },
                     ifNotNone: v => {
                         const result = v.handleRequest(newReq);
 
-                        console.log("gg", result)
                         return result;
                     }
                 })
@@ -155,7 +154,6 @@ export class RouterObject<
                     return Optionable.none();
                 }
                 if (current && 'handleRequest' in current) {
-                    console.log("f", current)
                     return Optionable.some(current);
                 }
                 return Optionable.none();

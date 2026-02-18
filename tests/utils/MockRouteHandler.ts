@@ -23,7 +23,7 @@ export class MockRouteHandler<
 }
 
 
-console.log(new MockRouteHandler(req => req, {}).handleRequest({body: {jo: ""}}))
+
 
 /**
  * A mock route handler that always returns a fixed response.
