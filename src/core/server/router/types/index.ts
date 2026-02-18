@@ -1,9 +1,9 @@
 import { URecord } from "@blazyts/better-standard-library";
 import type { Hook, Hooks, HooksDefault } from "../../../types/Hooks/Hooks";
 import type { IRouteHandler, Request, Response } from "../routeHandler";
-
+export * from "./PathStringToObject"
 export type RouteTree = {
-  [segment: string]: RouteTree | IRouteHandler<Request, Response>;
+  [segment: string]: RouteTree | { "/": IRouteHandler<Request, Response> } | IRouteHandler<Request, Response>;
 };
 
 export type RouteHandlerHooks<TRouterHooks extends RouterHooks> = {
@@ -21,9 +21,3 @@ export type RouterHooks = {
 };
 
 
-export type pathStringToObject<T extends string, C, ReturnType = {}> =
-    T extends `/${infer CurrentPart}/${infer Rest}`
-    ? { [K in CurrentPart]: pathStringToObject<`/${Rest}`, C> }
-    : T extends `/${infer Param}`
-    ? ReturnType & { [K in Param]: C }
-    : ReturnType

@@ -1,10 +1,11 @@
-import type { ifAny, MemberAlreadyPresent, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
+import type { And, ifAny, MemberAlreadyPresent, TypeSafeOmit, URecord } from "@blazyts/better-standard-library";
 import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 import { Hook, Hooks } from "../../types/Hooks/Hooks";
 import { RequestObjectHelper } from "../../utils/RequestObjectHelper";
 import type { IRouteHandler } from "./routeHandler/types";
 import type { RouteMAtcher } from "./routeMatcher/types";
-import type { pathStringToObject, RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
+import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
+import type { PathStringToObject } from "./types";
 import type { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/src/client/client-builder/clientBuilder";
 import type { Request, Response } from "./routeHandler/types/IRouteHandler";
@@ -43,7 +44,10 @@ export class RouterObject<
     },
     ): RouterObject<
         TRouterHooks,
-        TRoutes & pathStringToObject<TRoouteMAtcher["TGetRouteString"], THandler>
+        And<[
+            TRoutes,
+            PathStringToObject<TRoouteMAtcher["TGetRouteString"], THandler>
+        ]>
     > {
         const routeString = v.routeMatcher.getRouteString();
         const segments = routeString.split("/").filter(s => s !== "");

@@ -128,7 +128,8 @@ describe("Router Integration Test", () => {
                 name: "extractor", handler: formatted => {
                     expectTypeOf(formatted.errorCode).toMatchTypeOf<{ errorCode: string }>()
                 }
-            });
+            })
+            
 
 
         // Execute request through the router
