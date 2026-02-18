@@ -25,7 +25,6 @@ export class Path<T extends string> {
         return null;
       return parts[parts.length - 1];
     })()
-    console.log("lll", res)
     return Optionable.some(res);
   }
 }
