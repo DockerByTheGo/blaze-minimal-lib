@@ -12,7 +12,15 @@ export class Path<T extends string> {
   constructor(public readonly path: T) { }
 
   public get parts(): PathPart<string>[] {
-    return (this.path.includes("://") ? this.path.slice(this.path.indexOf("/", 3)): this.path)
+    let url: string = null
+    if (this.path.includes("://")) {
+      const urlWithoutProtocol = this.path.slice(this.path.indexOf("//") + 2)
+      const urlWithoutHost = urlWithoutProtocol.slice(urlWithoutProtocol.indexOf("/"))
+      url = urlWithoutHost
+    } else {
+      url = this.path
+    }
+    return url
       .split("/")
       .filter(v => v.length > 0)
       .map(part => new PathPart(part));

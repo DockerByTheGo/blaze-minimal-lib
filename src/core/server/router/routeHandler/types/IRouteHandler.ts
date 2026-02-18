@@ -12,7 +12,7 @@ export type IRouteHandler<
   TResponse extends URecord,
 > = {
   handleRequest: (arg: TRequest) => TResponse;
-  getClientRepresentation: (metadata: IRouteHandlerMetadata ) => unknown;
+  getClientRepresentation: (metadata: IRouteHandlerMetadata ) => (v: unknown)=> Promise<unknown>;
   metadata: unknown
 };
 
