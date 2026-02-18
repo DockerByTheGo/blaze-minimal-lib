@@ -42,7 +42,7 @@ type FindNextHookByName<
 
 export class Hooks<
   THooks extends (Hook<string, (arg: unknown) => unknown>)[],
-  VLastHookReturnType = ReturnType<Last<THooks>["handler"]>,
+  VLastHookReturnType extends {url: string} = ReturnType<Last<THooks>["handler"]>,
 > extends TypeMarker<"Hooks"> {
   protected constructor(public v: THooks) {
     super("Hooks");

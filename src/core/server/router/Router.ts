@@ -6,15 +6,15 @@ import type { IRouteHandler } from "./routeHandler/types";
 import type { RouteMAtcher } from "./routeMatcher/types";
 import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { PathStringToObject } from "./types";
-import type { Path } from "./utils/path/Path";
+import { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/src/client/client-builder/clientBuilder";
-import type { Request, Response } from "./routeHandler/types/IRouteHandler";
-import { catchF, composeCatch, LOG, panic, TypeError } from "@blazyts/better-standard-library";
+import type { IRouteHandlerDefault, Response } from "./routeHandler/types/IRouteHandler";
+import { catchF, composeCatch, LOG, map, panic, TypeError } from "@blazyts/better-standard-library";
 
 type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
 
 
-export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandler<any, any>>
+export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandlerDefault>
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -100,26 +100,19 @@ export class RouterObject<
     }
 
 
-    route(request: Request): Response {
+    route(request: URecord): Response {
 
-        let mutReq = request.createMutableCopy()
         try {
-            const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.execute(mutReq))
+            return map(
+                this.routerHooks.beforeHandler.execute(request),
+                req => this
+                    .routeFinder(this.routes, new Path(req.url))
+                    .expect("Route not found",)
+                    .map(v => v.handleRequest(req))
+                    .map(response => this.routerHooks.afterHandler.execute(response))
 
-            const reqAfterPerformingHandler = this
-                .routeFinder(this.routes, newReq.path)
-                .try({
-                    ifNone: () => { panic("Route not found") },
-                    ifNotNone: v => {
-                        console.log("ffffkkk", v)
-                        const result = v.handleRequest(newReq);
+            )
 
-                        return result;
-                    }
-                })
-
-            console.log("ddddddddddujfhjgfhgfhghgh", reqAfterPerformingHandler)
-            return this.routerHooks.afterHandler.execute(reqAfterPerformingHandler)
         } catch (e) {
             LOG("error", e)
             return this.routerHooks.onError.execute(e)

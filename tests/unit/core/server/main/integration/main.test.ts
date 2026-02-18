@@ -5,6 +5,7 @@ import { MockRouteHandler } from "../../../../../mocks/MockRouteHandler";
 import { RequestObjectHelper } from "../../../../../../src/core/utils/RequestObjectHelper";
 
 
+
 class NormalRouting<T extends string> implements RouteMAtcher<{ postId: string }> {
     type = "normal";
 
@@ -98,7 +99,6 @@ describe("Router Integration Test", () => {
                 handler: new MockRouteHandler(req => {
                     mainHandlerCalled = true;
                     mainHandlerArg = req;
-                    console.log("ookkokoko")
                     executionLog.push("mainHandler");
                     expectTypeOf(req).toMatchTypeOf<{ body: any }>();
                     return { body: { success: true, postId: req.body?.postId || "unknown", message: "Post retrieved" } };
@@ -129,11 +129,11 @@ describe("Router Integration Test", () => {
                     expectTypeOf(formatted.errorCode).toMatchTypeOf<{ errorCode: string }>()
                 }
             })
-            
 
 
-        // Execute request through the router
-        const request = new RequestObjectHelper({ path: "/posts/999" });
+
+        // a bit hacky , but the router should be tested againhst the actual route however Request expects a valid route
+        const request = { ...new Request("http://localhost:300/posts/999"), url: "posts/999" };
         const response = router.route(request);
 
         // Verify all handlers were called in correct order
