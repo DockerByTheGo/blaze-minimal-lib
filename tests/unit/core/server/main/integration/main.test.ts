@@ -71,25 +71,21 @@ describe("Router Integration Test", () => {
             .beforeHandler({
                 name: "add-token",
                 handler: arg => {
-                    console.log("calling ")
                     beforeHandler1Called = true;
                     beforeHandler1Arg = arg;
                     executionLog.push("beforeHandler1");
                     const result = { ...arg, token: "abc123" } as const;
-                    console.log("beforeHandler1 returning:", result);
                     return result;
                 },
             })
             .beforeHandler({
                 name: "add-user",
                 handler: arg => {
-                    console.log("beforeHandler2 received:", arg);
                     beforeHandler2Called = true;
                     beforeHandler2Arg = arg;
                     executionLog.push("beforeHandler2");
                     expectTypeOf(arg).toMatchTypeOf<{ token: string }>();
                     const result = { ...arg, userId: 42, userName: "testuser" };
-                    console.log("beforeHandler2 returning:", result);
                     return result;
                 },
             })

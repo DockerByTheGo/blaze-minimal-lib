@@ -1,6 +1,5 @@
 import { LOG } from "@blazyts/better-standard-library";
 import { HookBuilder } from "../../src/core/websocket/server/utilites/builders/HookBuilder";
-import { MessageThatCanBeReceivedBuilder } from "../../src/core/websocket/server/utilites/builders/MessageBuilder";
 import { hooks } from "./Hook";
 
 export const msg = new MessageThatCanBeReceivedBuilder(
@@ -46,7 +45,7 @@ export const pukiMessage = new MessageThatCanBeReceivedBuilder(
     } as const,
     onErrorr: v => "",
   },
-  (v) => { console.log("ko"); },
+  (v) => { },
 ).build();
 
 export const newTrainData = new MessageThatCanBeReceivedBuilder(
