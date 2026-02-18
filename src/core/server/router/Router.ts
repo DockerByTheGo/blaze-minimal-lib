@@ -100,7 +100,7 @@ export class RouterObject<
     }
 
 
-    route(request: RequestObjectHelper<any, any, any>): Response {
+    route(request: Request): Response {
 
         let mutReq = request.createMutableCopy()
         try {
@@ -111,12 +111,14 @@ export class RouterObject<
                 .try({
                     ifNone: () => { panic("Route not found") },
                     ifNotNone: v => {
+                        console.log("ffffkkk", v)
                         const result = v.handleRequest(newReq);
 
                         return result;
                     }
                 })
 
+            console.log("ddddddddddujfhjgfhgfhghgh", reqAfterPerformingHandler)
             return this.routerHooks.afterHandler.execute(reqAfterPerformingHandler)
         } catch (e) {
             LOG("error", e)

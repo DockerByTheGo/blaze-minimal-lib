@@ -1,9 +1,9 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { Optionable } from "@blazyts/better-standard-library";
-import { RouteMAtcher } from "../../../../../src/core/server";
-import { RouterObject } from "../../../../../src/core/server/router/Router";
-import { RequestObjectHelper } from "../../../../../src/core/utils/RequestObjectHelper";
-import { MockRouteHandler } from "../../../../utils/MockRouteHandler";
+import { Optionable, TypeMarker } from "@blazyts/better-standard-library";
+import { RouteMAtcher, RouterObject } from "../../../../../../src/core/server";
+import { MockRouteHandler } from "../../../../../mocks/MockRouteHandler";
+import { RequestObjectHelper } from "../../../../../../src/core/utils/RequestObjectHelper";
+
 
 class NormalRouting<T extends string> implements RouteMAtcher<{ postId: string }> {
     type = "normal";
