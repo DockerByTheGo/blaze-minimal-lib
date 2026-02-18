@@ -1,12 +1,5 @@
-import type { URecord } from "@blazyts/better-standard-library";
 
-export type Response = {
-  body: URecord;
-};
 
-export type Request = {
-  body: URecord;
-};
 
 export type IRouteHandlerMetadata =  {
   subRoute: string,

@@ -5,6 +5,7 @@ import { MockRouteHandler } from "../../../../../mocks/MockRouteHandler";
 import { RequestObjectHelper } from "../../../../../../src/core/utils/RequestObjectHelper";
 
 
+
 class NormalRouting<T extends string> implements RouteMAtcher<{ postId: string }> {
     type = "normal";
 
@@ -133,7 +134,7 @@ describe("Router Integration Test", () => {
 
 
         // Execute request through the router
-        const request = new RequestObjectHelper({ path: "/posts/999" });
+        const request = ({ path: "/posts/999" });
         const response = router.route(request);
 
         // Verify all handlers were called in correct order

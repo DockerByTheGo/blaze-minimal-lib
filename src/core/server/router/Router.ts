@@ -6,9 +6,9 @@ import type { IRouteHandler } from "./routeHandler/types";
 import type { RouteMAtcher } from "./routeMatcher/types";
 import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { PathStringToObject } from "./types";
-import type { Path } from "./utils/path/Path";
+import { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/src/client/client-builder/clientBuilder";
-import type { Request, Response } from "./routeHandler/types/IRouteHandler";
+import type { Response } from "./routeHandler/types/IRouteHandler";
 import { catchF, composeCatch, LOG, panic, TypeError } from "@blazyts/better-standard-library";
 
 type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
@@ -102,17 +102,15 @@ export class RouterObject<
 
     route(request: Request): Response {
 
-        let mutReq = request.createMutableCopy()
         try {
-            const newReq = new RequestObjectHelper(this.routerHooks.beforeHandler.execute(mutReq))
 
             const reqAfterPerformingHandler = this
-                .routeFinder(this.routes, newReq.path)
+                .routeFinder(this.routes, new Path(request.url))
                 .try({
                     ifNone: () => { panic("Route not found") },
                     ifNotNone: v => {
                         console.log("ffffkkk", v)
-                        const result = v.handleRequest(newReq);
+                        const result = v.handleRequest(request);
 
                         return result;
                     }
