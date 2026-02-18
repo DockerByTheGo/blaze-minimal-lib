@@ -8,13 +8,13 @@ import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { PathStringToObject } from "./types";
 import { Path } from "./utils/path/Path";
 import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/src/client/client-builder/clientBuilder";
-import type { Response } from "./routeHandler/types/IRouteHandler";
-import { catchF, composeCatch, LOG, panic, TypeError } from "@blazyts/better-standard-library";
+import type { IRouteHandlerDefault, Response } from "./routeHandler/types/IRouteHandler";
+import { catchF, composeCatch, LOG, map, panic, TypeError } from "@blazyts/better-standard-library";
 
 type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
 
 
-export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandler<any, any>>
+export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandlerDefault>
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -100,24 +100,19 @@ export class RouterObject<
     }
 
 
-    route(request: Request): Response {
+    route(request: URecord): Response {
 
         try {
+            return map(
+                this.routerHooks.beforeHandler.execute(request),
+                req => this
+                    .routeFinder(this.routes, new Path(req.url))
+                    .expect("Route not found",)
+                    .map(v => v.handleRequest(req))
+                    .map(response => this.routerHooks.afterHandler.execute(response))
 
-            const reqAfterPerformingHandler = this
-                .routeFinder(this.routes, new Path(request.url))
-                .try({
-                    ifNone: () => { panic("Route not found") },
-                    ifNotNone: v => {
-                        console.log("ffffkkk", v)
-                        const result = v.handleRequest(request);
+            )
 
-                        return result;
-                    }
-                })
-
-            console.log("ddddddddddujfhjgfhgfhghgh", reqAfterPerformingHandler)
-            return this.routerHooks.afterHandler.execute(reqAfterPerformingHandler)
         } catch (e) {
             LOG("error", e)
             return this.routerHooks.onError.execute(e)

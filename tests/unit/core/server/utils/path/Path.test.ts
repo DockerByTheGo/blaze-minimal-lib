@@ -72,7 +72,6 @@ describe("Path", () => {
         it("should return last part with dynamic segments", () => {
             const path = new Path("/api/users/:id");
             const lastPart = path.getLastPart();
-            console.log("last", lastPart)
 
             expect(lastPart.isSome()).toBe(true);
             expect(lastPart.unpack().valueOf().part).toBe(":id");
@@ -85,7 +84,6 @@ describe("Path", () => {
             const path = new Path("/api/v1/users/:userId/posts/:postId");
             const parts = path.parts;
 
-            console.log(parts)
             expect(parts).toHaveLength(6);
             expect(parts.map(p => p.part)).toEqual([
                 "api",
