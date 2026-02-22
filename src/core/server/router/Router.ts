@@ -109,7 +109,7 @@ export class RouterObject<
                     return this
                         .routeFinder(this.routes, new Path(req.url))
                         .expect("Route not found")
-                        .map(handler => { console.log("kkkk", req); const h = handler.handleRequest(req); console.log("handler", handler, h); return h })
+                        .map(handler => { const h = handler.handleRequest(req); return h })
                         .map(response => this.routerHooks.afterHandler.execute(response))
                         .map(v => ({ body: v }))
                 }
