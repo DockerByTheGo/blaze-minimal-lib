@@ -14,7 +14,7 @@ import { catchF, composeCatch, LOG, map, panic, TypeError } from "@blazyts/bette
 type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
 
 
-export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<IRouteHandlerDefault>
+export type RouteFinder<TRoutes extends RouteTree> = (routes: TRoutes, path: Path<string>) => Optionable<{[x : string]:IRouteHandlerDefault}>
 
 export class RouterObject<
     TRouterHooks extends RouterHooks,
@@ -106,6 +106,7 @@ export class RouterObject<
             return map(
                 this.routerHooks.beforeHandler.execute(request),
                 req => {
+                    console.log("gg",req.url)
                     return this
                         .routeFinder(this.routes, new Path(req.url))
                         .expect("Route not found")

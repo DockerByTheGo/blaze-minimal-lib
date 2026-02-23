@@ -2,8 +2,13 @@ import { URecord } from "@blazyts/better-standard-library";
 import type { Hook, Hooks, HooksDefault } from "../../../types/Hooks/Hooks";
 import type { IRouteHandler, Request, Response } from "../routeHandler";
 export * from "./PathStringToObject"
+
+export type ProtocolHandlers = {
+  [protocol in 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'ws']?: IRouteHandler<Request, Response>;
+};
+
 export type RouteTree = {
-  [segment: string]: RouteTree | { "/": IRouteHandler<Request, Response> } | IRouteHandler<Request, Response>;
+  [segment: string]: RouteTree | { "/": ProtocolHandlers | IRouteHandler<Request, Response> } | IRouteHandler<Request, Response>;
 };
 
 export type RouteHandlerHooks<TRouterHooks extends RouterHooks> = {
