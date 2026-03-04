@@ -73,7 +73,12 @@ export class Hooks<
     };
   },
   ): Hooks<THooks> {
-
+    const index = this.v.findIndex(hook => hook.name === v.existingHookName);
+    if (index !== -1) {
+      const newHook = new Hook(v.newHook.name, v.newHook.handler);
+      this.v.splice(index, 0, newHook);
+    }
+    return this;
   }
 
   add<
@@ -119,10 +124,3 @@ const h = Hooks
     name: "idk2" as const,
     handler: v => "ddd" as const,
   })
-  .placeBefore({
-    existingHookName: "idk",
-    newHook: {
-      name: "idk3" as const,
-      handler: v => "gg" as const,
-    },
-  });

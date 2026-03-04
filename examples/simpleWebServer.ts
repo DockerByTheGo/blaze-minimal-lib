@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { builtIns } from "../../blazy-edge/src/pluings/file-upload";
+import { builtIns } from "../../blazy-edge/main-app/src/pluings/file-upload";
 import { ResponseStatus, WebRouter } from "../src/app";
 import { ApiPath } from "../src/types/apiApth";
 import { FileName } from "../src/types/filename";

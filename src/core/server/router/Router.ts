@@ -7,9 +7,10 @@ import type { RouteMAtcher } from "./routeMatcher/types";
 import type { RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 import type { PathStringToObject } from "./types";
 import { Path } from "./utils/path/Path";
-import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/src/client/client-builder/clientBuilder";
-import type { IRouteHandlerDefault, Response } from "./routeHandler/types/IRouteHandler";
+import { CleintBuilderConstructors, ClientBuilder } from "../../../../../blazy-edge/main-app/src/client/client-builder/clientBuilder";
+import type { IRouteHandlerDefault } from "./routeHandler/types/IRouteHandler";
 import { catchF, composeCatch, LOG, map, panic, TypeError } from "@blazyts/better-standard-library";
+import type { RequestData } from "../types";
 
 type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">
 
@@ -32,6 +33,7 @@ export class RouterObject<
         TRoouteMAtcher extends RouteMAtcher<URecord>,
         THandlerReturn extends Response,
         THooks extends Partial<RouteHandlerHooks<TRouterHooks>>,
+        TProtocol extends string,
         THandler extends IRouteHandler<
             { body: TRoouteMAtcher["TGetContextType"] & (ifAny<ReturnType<THooks["beforeHandler"]>, TRouterHooks["beforeHandler"]["TGetLastHookReturnType"]>) }, // support for adding multiple local hooks in the future 
             THandlerReturn
@@ -41,12 +43,16 @@ export class RouterObject<
         routeMatcher: TRoouteMAtcher;
         handler: THandler;
         hooks?: THooks;
+        protocol: TProtocol;
     },
     ): RouterObject<
         TRouterHooks,
         And<[
             TRoutes,
-            PathStringToObject<TRoouteMAtcher["TGetRouteString"], THandler>
+            PathStringToObject<
+            TRoouteMAtcher["TGetRouteString"],
+            THandler
+             >
         ]>
     > {
         const routeString = v.routeMatcher.getRouteString();
@@ -100,17 +106,17 @@ export class RouterObject<
     }
 
 
-    route(request: URecord): Response {
-
+    route(request :{reqData: RequestData}): Response {
+        console.log(this.routes)
         try {
             return map(
                 this.routerHooks.beforeHandler.execute(request),
                 req => {
-                    console.log("gg",req.url)
                     return this
-                        .routeFinder(this.routes, new Path(req.url))
+                        .routeFinder(this.routes, new Path(request.reqData.url))
                         .expect("Route not found")
-                        .map(handler => { const h = handler.handleRequest(req); return h })
+                        .map(handler => { 
+                            const h = handler[req.reqData.protocol].handleRequest(req); return h })
                         .map(response => this.routerHooks.afterHandler.execute(response))
                         .map(v => ({ body: v }))
                 }
