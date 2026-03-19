@@ -94,14 +94,3 @@ export class Hooks<
 export type HooksDefault = Hooks<Hook<string, (arg: unknown) => unknown>[]>
 
 export type HookDfault = Hook<string, (arg: unknown) => unknown>
-
-const h = Hooks
-  .empty()
-  .add({
-    name: "idk" as const,
-    handler: v => "gg" as const,
-  })
-  .add({
-    name: "idk2" as const,
-    handler: v => "ddd" as const,
-  })
