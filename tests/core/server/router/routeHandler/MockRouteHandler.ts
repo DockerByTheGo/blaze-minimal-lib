@@ -1,5 +1,4 @@
-import type { Optionable } from "@blazyts/better-standard-library";
-import type { IRouteHandler, Request, Response } from "../../src/core/server/router/routeHandler/types/IRouteHandler";
+import type { IRouteHandler, Request, Response } from "@src/core/server/router/routeHandler/types/IRouteHandler";
 
 /**
  * A simple mock route handler for testing purposes.
@@ -21,6 +20,9 @@ export class MockRouteHandler<
         return this.responseFactory(request);
     }
 }
+
+
+
 
 /**
  * A mock route handler that always returns a fixed response.

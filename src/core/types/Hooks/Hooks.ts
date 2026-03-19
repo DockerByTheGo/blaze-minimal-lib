@@ -62,25 +62,6 @@ export class Hooks<
 
   TGetHookNames: THooks[number]["name"];
 
-  placeBefore<
-    TExistingHookName extends THooks[number]["name"],
-    TNewHookName extends string,
-  >(v: {
-    existingHookName: TExistingHookName;
-    newHook: {
-      name: TNewHookName;
-      handler: (arg: FindHookByName<THooks, TExistingHookName>["TGetArgType"]) => ReturnType<FindHookByName<THooks, TExistingHookName>["handler"]>;
-    };
-  },
-  ): Hooks<THooks> {
-    const index = this.v.findIndex(hook => hook.name === v.existingHookName);
-    if (index !== -1) {
-      const newHook = new Hook(v.newHook.name, v.newHook.handler);
-      this.v.splice(index, 0, newHook);
-    }
-    return this;
-  }
-
   add<
     THookName extends string,
     THookHandler extends (v: VLastHookReturnType extends unknown ? VLastHookReturnType : any) => unknown,
@@ -113,14 +94,3 @@ export class Hooks<
 export type HooksDefault = Hooks<Hook<string, (arg: unknown) => unknown>[]>
 
 export type HookDfault = Hook<string, (arg: unknown) => unknown>
-
-const h = Hooks
-  .empty()
-  .add({
-    name: "idk" as const,
-    handler: v => "gg" as const,
-  })
-  .add({
-    name: "idk2" as const,
-    handler: v => "ddd" as const,
-  })

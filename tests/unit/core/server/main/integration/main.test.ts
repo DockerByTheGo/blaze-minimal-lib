@@ -1,8 +1,8 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import { Optionable, TypeMarker } from "@blazyts/better-standard-library";
 import { RouteMAtcher, RouterObject } from "../../../../../../src/core/server";
-import { MockRouteHandler } from "../../../../../mocks/MockRouteHandler";
 import { RequestObjectHelper } from "../../../../../../src/core/utils/RequestObjectHelper";
+import { MockRouteHandler } from "@test/core/server/router/routeHandler/MockRouteHandler";
 
 
 
