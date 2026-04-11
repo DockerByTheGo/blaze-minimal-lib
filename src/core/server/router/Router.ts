@@ -108,6 +108,9 @@ export class RouterObject<
 
     route(request :{reqData: RequestData}): Response {
         console.log(this.routes)
+        if(!request.reqData.protocol){
+            request.reqData.protocol = "GET"
+        }
         try {
             return map(
                 this.routerHooks.beforeHandler.execute(request),
@@ -118,7 +121,7 @@ export class RouterObject<
                         .map(handler => { 
                             const h = handler[req.reqData.protocol].handleRequest(req); return h })
                         .map(response => this.routerHooks.afterHandler.execute(response))
-                        .map(v => ({ body: v }))
+                        .raw
                 }
             )
 
