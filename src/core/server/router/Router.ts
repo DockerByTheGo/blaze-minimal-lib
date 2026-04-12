@@ -106,7 +106,7 @@ export class RouterObject<
     }
 
 
-    route(request :{reqData: RequestData}): Response {
+    async route(request :{reqData: RequestData})  {
         console.log(this.routes)
         if(!request.reqData.protocol){
             request.reqData.protocol = "GET"
