@@ -2,7 +2,7 @@ import type { IRouteHandler, RequestData, RouteMAtcher } from "../index";
 
 import { RouterObject } from "../index";
 
-type UserRouteContext = {
+type UserRouteParams = {
   userId: string;
 };
 
@@ -13,6 +13,7 @@ type ExampleRequestData = RequestData & {
 type ExampleRequest = {
   reqData: ExampleRequestData;
   requestId: string;
+  body: UserRouteParams;
 };
 
 type ExampleResponse = {
@@ -21,42 +22,34 @@ type ExampleResponse = {
     userId: string;
     requestId: string;
   };
-  meta?: {
-    servedBy: string;
-  };
 };
 
-class UserRouteMatcher implements RouteMAtcher<UserRouteContext> {
+class UserRouteMatcher implements RouteMAtcher<UserRouteParams> {
   type = "example";
   TGetRouteString!: "/users/:userId";
-  TGetContextType!: UserRouteContext;
+  TGetContextType!: UserRouteParams;
 
   getRouteString() {
     return "/users/:userId";
   }
 
-  match(path: string): UserRouteContext | undefined {
-    const [, usersSegment, userId] = path.split("/");
-    if (usersSegment !== "users" || !userId) {
+  match(path: string): UserRouteParams | undefined {
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length !== 2 || parts[0] !== "users") {
       return undefined;
     }
 
-    return { userId };
+    return { userId: parts[1] };
   }
 }
 
-const getUserHandler: IRouteHandler<
-  {
-    body: UserRouteContext;
-    reqData: ExampleRequestData;
-    requestId: string;
-  },
-  ExampleResponse
-> = {
+const userRoute = new UserRouteMatcher();
+
+const getUserHandler: IRouteHandler<ExampleRequest, ExampleResponse> = {
   metadata: {},
   getClientRepresentation() {
     return {
-      description: "Returns a simple JSON payload for a user route.",
+      description: "Return a JSON payload for a matched user route.",
     };
   },
   handleRequest(request) {
@@ -74,24 +67,27 @@ async function main() {
   const router = RouterObject
     .empty()
     .beforeHandler({
-      name: "attach-request-id",
-      handler: request => ({
-        ...request,
-        requestId: "req-demo-001",
-      }),
+      name: "attach-route-params-and-request-id",
+      handler: (request) => {
+        // The current router uses `getRouteString()` for registration,
+        // so we normalize the matcher result here before the handler runs.
+        const params = userRoute.match(request.reqData.url);
+        if (!params) {
+          throw new Error("Route params could not be resolved");
+        }
+
+        return {
+          ...request,
+          requestId: "req-demo-001",
+          body: params,
+        };
+      },
     })
     .addRoute({
+      routeMatcher: userRoute,
       protocol: "GET",
-      routeMatcher: new UserRouteMatcher(),
-      hooks: {},
       handler: getUserHandler,
-    })
-    .afterHandler("attach-metadata", response => ({
-      ...response,
-      meta: {
-        servedBy: "blaze-minimal-lib",
-      },
-    }));
+    });
 
   const response = await router.route({
     reqData: {

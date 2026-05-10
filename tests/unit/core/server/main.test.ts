@@ -2,11 +2,11 @@ import type { Optionable, TypeMarker } from "@blazyts/better-standard-library";
 
 import { describe, expect, expectTypeOf, it } from "vitest";
 
-import { MockRouteHandler } from "@test/core/server/router/routeHandler/MockRouteHandler";
 
 import type { RouteMAtcher } from "../../../../src/core/server";
 
 import { RouterObject } from "../../../../src/core/server";
+import { MockRouteHandler } from "@test/mocks/MockRouteHandler";
 
 class NormalRouting<T extends string> implements RouteMAtcher<{ postId: string }> {
   type = "normal";

@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "bun --bun eslint src tests",
     "build": "bunx tsc -p tsconfig.json --noEmit",
-    "test": "bun x vitest run --config vitest.config.ts"
+    "test": "bun x vitest run --config vitest.config.ts",
+    "coverage": "bun x vitest run --config vitest.config.ts --coverage"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
