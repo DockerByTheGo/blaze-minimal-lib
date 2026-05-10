@@ -1,1 +1,1 @@
-export * from "./getParts"
+export * from "./getParts";

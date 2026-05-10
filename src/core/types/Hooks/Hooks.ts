@@ -9,7 +9,7 @@ export class Hook<
   constructor(public name: TName, public handler: THandler) { }
 
   TGetArgType: Parameters<THandler>[0];
-  TGetReturnType: ReturnType<THandler>
+  TGetReturnType: ReturnType<THandler>;
 }
 
 type FindHookByName<
@@ -20,8 +20,8 @@ type FindHookByName<
   ...infer Rest extends readonly Hook<string, any>[],
 ]
   ? First["name"] extends TTargetName
-  ? First
-  : FindHookByName<Rest, TTargetName>
+    ? First
+    : FindHookByName<Rest, TTargetName>
   : never;
 
 type FindNextHookByName<
@@ -33,23 +33,23 @@ type FindNextHookByName<
     infer First extends Hook<string, any>,
     ...infer Rest extends readonly Hook<string, any>[],
   ]
-  ? Found extends true
-  ? First // <-- immediately return the next one
-  : First["name"] extends TTargetName
-  ? FindNextHookByName<Rest, TTargetName, true>
-  : FindNextHookByName<Rest, TTargetName, false>
-  : never;
+    ? Found extends true
+      ? First // <-- immediately return the next one
+      : First["name"] extends TTargetName
+        ? FindNextHookByName<Rest, TTargetName, true>
+        : FindNextHookByName<Rest, TTargetName, false>
+    : never;
 
 export class Hooks<
   THooks extends (Hook<string, (arg: unknown) => unknown>)[],
-  VLastHookReturnType extends {url: string} = ReturnType<Last<THooks>["handler"]>,
+  VLastHookReturnType extends { url: string } = ReturnType<Last<THooks>["handler"]>,
 > extends TypeMarker<"Hooks"> {
   protected constructor(public v: THooks) {
     super("Hooks");
   }
 
   execute(initialValue: URecord): VLastHookReturnType {
-    return this.v ? this.v.reduce((acc, hook) => { return hook.handler(acc) }, initialValue) as VLastHookReturnType : initialValue;
+    return this.v ? this.v.reduce((acc, hook) => { return hook.handler(acc); }, initialValue) as VLastHookReturnType : initialValue;
   }
 
   TGetLastHookReturnType: VLastHookReturnType;
@@ -74,7 +74,7 @@ export class Hooks<
       new Hook(v.name, v.handler),
     );
 
-    return this as any
+    return this as any;
   }
 
   static new() {
@@ -90,7 +90,6 @@ export class Hooks<
   }
 }
 
+export type HooksDefault = Hooks<Hook<string, (arg: unknown) => unknown>[]>;
 
-export type HooksDefault = Hooks<Hook<string, (arg: unknown) => unknown>[]>
-
-export type HookDfault = Hook<string, (arg: unknown) => unknown>
+export type HookDfault = Hook<string, (arg: unknown) => unknown>;

@@ -13,7 +13,7 @@ export class RequestObjectHelper<
     public readonly properties: {
       body: TBodySchema;
       headers: THeaders;
-      path: TPath,
+      path: TPath;
     },
   ) {
 
@@ -32,7 +32,7 @@ export class RequestObjectHelper<
   }
 
   public get path(): Path<TPath> {
-    return new Path(this.properties.path)
+    return new Path(this.properties.path);
   }
 
   public createMutableCopy(): {
