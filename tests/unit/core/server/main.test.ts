@@ -37,7 +37,7 @@ class NormalRouting<T extends string> implements RouteMAtcher<{ postId: string }
 }
 
 describe("router Integration Test", () => {
-  it("should execute complete router flow with hooks, handlers, and correct types", () => {
+  it("should execute complete router flow with hooks, handlers, and correct types", async () => {
     // Track execution order and calls
     const executionLog: string[] = [];
     let beforeHandler1Called = false;
@@ -93,6 +93,7 @@ describe("router Integration Test", () => {
       })
       .addRoute({
         routeMatcher: new NormalRouting("/posts/:postId"),
+        protocol: "GET",
         hooks: {},
         handler: new MockRouteHandler((req) => {
           mainHandlerCalled = true;
@@ -130,9 +131,15 @@ describe("router Integration Test", () => {
         },
       });
 
-    // a bit hacky , but the router should be tested againhst the actual route however Request expects a valid route
-    const request = { ...new Request("http://localhost:300/posts/999"), url: "posts/999" };
-    const response = router.route(request);
+    const request = {
+      reqData: {
+        url: "posts/999",
+        headers: {},
+        body: {},
+        protocol: "GET",
+      },
+    };
+    const response = await router.route(request as any);
 
     // Verify all handlers were called in correct order
     expect(beforeHandler1Called).toBe(true);

@@ -8,7 +8,7 @@ import type { RequestData } from "../types";
 import type { IRouteHandler } from "./routeHandler/types";
 import type { IRouteHandlerDefault } from "./routeHandler/types/IRouteHandler";
 import type { RouteMAtcher } from "./routeMatcher/types";
-import type { PathStringToObject, RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
+import type { PathStringToObject, ProtocolHandlers, RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 
 import { Hooks } from "../../types/Hooks/Hooks";
 import { Path } from "./utils/path/Path";
@@ -73,7 +73,15 @@ export class RouterObject<
       handleRequest: arg => catchF(() => v.handler.handleRequest(arg), v.hooks.onError ?? (e => panic(JSON.stringify(e)))),
     };
 
-    current[last] = modifiedHandler;
+    if (!current[last] || typeof current[last] !== "object") {
+      current[last] = { "/": {} };
+    }
+
+    const leaf = current[last] as { "/": ProtocolHandlers };
+    if (!leaf["/"]) {
+      leaf["/"] = {};
+    }
+    leaf["/"][v.protocol] = modifiedHandler;
 
     return new RouterObject(this.routerHooks, newRoutes, this.routeFinder);
   }
@@ -156,8 +164,13 @@ export class RouterObject<
           }
           return Optionable.none();
         }
-        if (current && "handleRequest" in current) {
-          return Optionable.some(current);
+        if (current && typeof current === "object") {
+          if ("/" in current) {
+            return Optionable.some(current["/"]);
+          }
+          if ("handleRequest" in current) {
+            return Optionable.some({ GET: current });
+          }
         }
         return Optionable.none();
       },

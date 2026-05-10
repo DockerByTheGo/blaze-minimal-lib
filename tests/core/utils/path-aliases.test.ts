@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 
 import { Path } from "@src/core/server";
 import { aliasFixture } from "@test/helpers/aliasFixture";

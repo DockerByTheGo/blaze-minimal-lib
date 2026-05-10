@@ -15,11 +15,6 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: [
-      "tests/utils/testHelpers.test.ts",
-      "tests/core/utils/testHelpers.test.ts",
-      "tests/unit/core/server/utils/path/Path.test.ts",
-      "tests/unit/core/server/main/integration/main.test.ts",
-    ],
+    include: ["tests/**/*.test.ts"],
   },
 });
