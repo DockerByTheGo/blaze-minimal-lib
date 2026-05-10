@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+
 import { Path } from "@src/core/server";
 import { aliasFixture } from "@test/helpers/aliasFixture";
 import { MockRouteHandler } from "@test/mocks/MockRouteHandler";

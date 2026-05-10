@@ -1,11 +1,9 @@
-import { URecord } from "@blazyts/better-standard-library";
-
-
+import type { URecord } from "@blazyts/better-standard-library";
 
 export type IRouteHandlerMetadata = {
-  subRoute: string,
-  serverUrl: string
-}
+  subRoute: string;
+  serverUrl: string;
+};
 
 export type IRouteHandler<
   TRequest extends URecord,
@@ -13,7 +11,7 @@ export type IRouteHandler<
 > = {
   handleRequest: (arg: TRequest) => TResponse;
   getClientRepresentation: (metadata: IRouteHandlerMetadata) => unknown;
-  metadata: unknown
+  metadata: unknown;
 };
 
-export type IRouteHandlerDefault = IRouteHandler<URecord, URecord>
+export type IRouteHandlerDefault = IRouteHandler<URecord, URecord>;

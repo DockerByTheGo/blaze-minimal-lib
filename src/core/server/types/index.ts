@@ -1,5 +1,5 @@
 export type RequestData = {
-    url: string;
-    headers: Record<string, string>;
-    body: unknown;
-}
+  url: string;
+  headers: Record<string, string>;
+  body: unknown;
+};

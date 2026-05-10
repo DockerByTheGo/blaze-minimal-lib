@@ -1,4 +1,5 @@
 import { LOG } from "@blazyts/better-standard-library";
+
 import { HookBuilder } from "../../src/core/websocket/server/utilites/builders/HookBuilder";
 import { hooks } from "./Hook";
 

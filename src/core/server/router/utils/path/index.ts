@@ -1,2 +1,2 @@
-export * from "./Path"
-export * from "./PathPart"
+export * from "./Path";
+export * from "./PathPart";

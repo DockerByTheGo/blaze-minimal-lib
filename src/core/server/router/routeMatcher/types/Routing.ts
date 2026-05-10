@@ -3,6 +3,6 @@ import type { ITypeMarked, Optionable, URecord } from "@blazyts/better-standard-
 export type RouteMAtcher<TGetContextType extends URecord> = {
   match: (path: string) => Optionable<TGetContextType>;
   getRouteString: () => string;
-  TGetRouteString:string 
+  TGetRouteString: string;
   TGetContextType: TGetContextType;
 } & ITypeMarked<string>;
