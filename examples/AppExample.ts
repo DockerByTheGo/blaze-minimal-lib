@@ -1,35 +1,108 @@
-// why use app?
+import type { IRouteHandler, RequestData, RouteMAtcher } from "../index";
 
-import { Optionable } from "errors-as-types/lib/rust-like-pattern/option";
-import { z } from "zod";
+import { RouterObject } from "../index";
 
-import { App, ResponseStatus } from "../src/app";
-import { ApiPath } from "../src/types/apiApth";
+type UserRouteContext = {
+  userId: string;
+};
 
-// well the webRouter part is supposed to a self contained piece so that it can be plugged into existing express apps. However it lacks some things so App is going one above it and providing some utilities like openapi tracking and also stacking contexts
+type ExampleRequestData = RequestData & {
+  protocol: "GET";
+};
 
-const app = new App({ hi: "" });
+type ExampleRequest = {
+  reqData: ExampleRequestData;
+  requestId: string;
+};
 
-const userRouter = app.createChildRouter(new ApiPath("/users"), { f: "" });
+type ExampleResponse = {
+  body: {
+    ok: true;
+    userId: string;
+    requestId: string;
+  };
+  meta?: {
+    servedBy: string;
+  };
+};
 
-userRouter.get(
-  "l",
+class UserRouteMatcher implements RouteMAtcher<UserRouteContext> {
+  type = "example";
+  TGetRouteString!: "/users/:userId";
+  TGetContextType!: UserRouteContext;
+
+  getRouteString() {
+    return "/users/:userId";
+  }
+
+  match(path: string): UserRouteContext | undefined {
+    const [, usersSegment, userId] = path.split("/");
+    if (usersSegment !== "users" || !userId) {
+      return undefined;
+    }
+
+    return { userId };
+  }
+}
+
+const getUserHandler: IRouteHandler<
   {
-    body: z.object({}),
-    params: z.object({}),
-    responses: z.object({}),
+    body: UserRouteContext;
+    reqData: ExampleRequestData;
+    requestId: string;
   },
-
-  async (req, res, next, ctx) => {
-    ctx.f;
-    ctx.hi;
-    // also since we use app we also have ACCESS to the parent context
+  ExampleResponse
+> = {
+  metadata: {},
+  getClientRepresentation() {
     return {
-      status: new ResponseStatus(200),
-      data: { message: "hello world" },
+      description: "Returns a simple JSON payload for a user route.",
     };
   },
-  {
-    description: new Optionable("Get user list"),
+  handleRequest(request) {
+    return {
+      body: {
+        ok: true,
+        userId: request.body.userId,
+        requestId: request.requestId,
+      },
+    };
   },
-);
+};
+
+async function main() {
+  const router = RouterObject
+    .empty()
+    .beforeHandler({
+      name: "attach-request-id",
+      handler: request => ({
+        ...request,
+        requestId: "req-demo-001",
+      }),
+    })
+    .addRoute({
+      protocol: "GET",
+      routeMatcher: new UserRouteMatcher(),
+      hooks: {},
+      handler: getUserHandler,
+    })
+    .afterHandler("attach-metadata", response => ({
+      ...response,
+      meta: {
+        servedBy: "blaze-minimal-lib",
+      },
+    }));
+
+  const response = await router.route({
+    reqData: {
+      url: "users/42",
+      headers: {},
+      body: {},
+      protocol: "GET",
+    },
+  } as ExampleRequest);
+
+  console.log(JSON.stringify(response, null, 2));
+}
+
+void main();
