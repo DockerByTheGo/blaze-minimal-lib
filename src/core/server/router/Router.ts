@@ -3,14 +3,14 @@ import type { And, ifAny, MemberAlreadyPresent, TypeSafeOmit, URecord } from "@b
 import { catchF, LOG, map, panic } from "@blazyts/better-standard-library";
 import { Optionable } from "@blazyts/better-standard-library/src/data_structures/functional-patterns/option";
 
-import type { Hook } from "../../types/Hooks/Hooks";
+import type { Hook } from "@src/core/hooks/Hook";
 import type { RequestData } from "../types";
 import type { IRouteHandler } from "./routeHandler/types";
 import type { IRouteHandlerDefault } from "./routeHandler/types/IRouteHandler";
 import type { RouteMatcher } from "./routeMatcher/types";
 import type { PathStringToObject, ProtocolHandlers, RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 
-import { Hooks } from "../../types/Hooks/Hooks";
+import { Hooks } from "../../hooks/Hooks";
 import { Path } from "./utils/path/Path";
 
 type HookWithThisNameAlreadyExists = MemberAlreadyPresent<"there is a hook with this name already">;
