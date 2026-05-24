@@ -1,4 +1,4 @@
-import type { IRouteHandler, RequestData, RouteMAtcher } from "../index";
+import type { IRouteHandler, RequestData, RouteMatcher } from "../index";
 
 import { RouterObject } from "../index";
 
@@ -24,7 +24,7 @@ type ExampleResponse = {
   };
 };
 
-class UserRouteMatcher implements RouteMAtcher<UserRouteParams> {
+class UserRouteMatcher implements RouteMatcher<UserRouteParams> {
   type = "example";
   TGetRouteString!: "/users/:userId";
   TGetContextType!: UserRouteParams;
