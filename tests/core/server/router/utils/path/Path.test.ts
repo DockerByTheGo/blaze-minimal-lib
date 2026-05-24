@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { Path } from "../../../../../../../src/core/server";
+import { Path } from "../../../../../../src/core/server";
 
 describe("path", () => {
   describe("constructor", () => {

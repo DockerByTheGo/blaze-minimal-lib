@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PathPart } from "../../../../../../../src/core/server/router/utils/path/PathPart";
+import { PathPart } from "../../../../../../src/core/server/router/utils/path/PathPart";
 
 describe("PathPart", () => {
   it("should store the provided path segment", () => {

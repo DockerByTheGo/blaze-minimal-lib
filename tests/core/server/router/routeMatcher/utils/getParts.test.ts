@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getParts } from "../../../../../../../src/core/server/router/routeMatcher/utils";
+import { getParts } from "../../../../../../src/core/server/router/routeMatcher/utils";
 
 describe("getParts", () => {
   it("should split a standard path into parts", () => {

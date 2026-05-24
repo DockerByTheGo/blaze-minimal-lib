@@ -6,8 +6,9 @@
   "scripts": {
     "lint": "bun --bun eslint src tests",
     "build": "bunx tsc -p tsconfig.json --noEmit",
-    "test": "bun x vitest run --config vitest.config.ts",
-    "coverage": "bun x vitest run --config vitest.config.ts --coverage"
+    "test": "bun x vitest run --config vitest.config.ts", // uses bun to execute the vitest test runner which uses node as a runner 
+    "coverage": "bun test --coverage",
+    "bun:test": "bun test" // uses bun as a runtime, uses it test runner and run the test
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

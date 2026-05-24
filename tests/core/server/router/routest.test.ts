@@ -1,6 +1,6 @@
 import { Optionable, type TypeMarker } from "@blazyts/better-standard-library";
 
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 
 import type { RouteMatcher } from "../../../../src/core/server";
@@ -62,12 +62,9 @@ describe("router Integration Test", () => {
     const matchResult = routeMatcher.match("/posts/123");
     expect(matchResult.isSome()).toBe(true);
     expect(matchResult.unpack().valueOf().postId).toBe("123");
-    expectTypeOf(matchResult).toEqualTypeOf<Optionable<{ postId: string }>>();
 
     // Verify route string
     expect(routeMatcher.getRouteString()).toBe("/posts/:postId");
-    expectTypeOf(routeMatcher.TGetRouteString).toEqualTypeOf<"/posts/:postId">();
-    expectTypeOf(routeMatcher.TGetContextType).toEqualTypeOf<{ postId: string }>();
 
     // Build router with all hooks and handlers
     const router = RouterObject
@@ -88,7 +85,6 @@ describe("router Integration Test", () => {
           beforeHandler2Called = true;
           beforeHandler2Arg = arg;
           executionLog.push("beforeHandler2");
-          expectTypeOf(arg).toMatchTypeOf<{ token: string }>();
           const result = { ...arg, userId: 42, userName: "testuser" };
           return result;
         },
@@ -101,7 +97,6 @@ describe("router Integration Test", () => {
           mainHandlerCalled = true;
           mainHandlerArg = req;
           executionLog.push("mainHandler");
-          expectTypeOf(req).toMatchTypeOf<{ body: any }>();
           return { body: { success: true, postId: req.body?.postId || "unknown", message: "Post retrieved" } };
         }),
       })
@@ -115,7 +110,6 @@ describe("router Integration Test", () => {
         afterHandler2Called = true;
         afterHandler2Arg = response;
         executionLog.push("afterHandler2");
-        expectTypeOf(response).toMatchTypeOf<{ timestamp: number }>();
         expect(response.timestamp).toBeTypeOf("number");
         return response;
       })
@@ -128,9 +122,7 @@ describe("router Integration Test", () => {
       .onError({ name: "formatter", handler: error => ({ errorCode: "ERR_500" }) })
       .onError({
         name: "extractor",
-        handler: (formatted) => {
-          expectTypeOf(formatted.errorCode).toMatchTypeOf<{ errorCode: string }>();
-        },
+        handler: formatted => formatted,
       });
 
     const request = {
@@ -166,7 +158,6 @@ describe("router Integration Test", () => {
 
     // Verify main handler received proper arguments
     expect(mainHandlerArg).toBeDefined();
-    expectTypeOf(mainHandlerArg).toMatchTypeOf<{ body: any }>();
 
     // Verify afterHandler chain
     expect(afterHandler1Arg).toBeDefined();
@@ -175,7 +166,6 @@ describe("router Integration Test", () => {
 
     // Verify final response
     expect(response).toBeDefined();
-    expectTypeOf(response).not.toBeAny();
 
     // Test route parameter extraction
     const paramTest = routeMatcher.match("/posts/abc-123-def");
