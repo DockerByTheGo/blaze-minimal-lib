@@ -1,14 +1,14 @@
-import type { Optionable, TypeMarker } from "@blazyts/better-standard-library";
+import { Optionable, type TypeMarker } from "@blazyts/better-standard-library";
 
 import { describe, expect, expectTypeOf, it } from "vitest";
 
-import { MockRouteHandler } from "@test/core/server/router/routeHandler/MockRouteHandler";
 
-import type { RouteMAtcher } from "../../../../src/core/server";
+import type { RouteMatcher } from "../../../../src/core/server";
 
 import { RouterObject } from "../../../../src/core/server";
+import { MockRouteHandler } from "@test/mocks/MockRouteHandler";
 
-class NormalRouting<T extends string> implements RouteMAtcher<{ postId: string }> {
+class NormalRouting<T extends string> implements RouteMatcher<{ postId: string }> {
   type = "normal";
 
   constructor(private routeString: T) { }
@@ -23,14 +23,16 @@ class NormalRouting<T extends string> implements RouteMAtcher<{ postId: string }
 
   match(path: string): Optionable<{ postId: string }> {
     // Simple parameter extraction for :postId
-    const pattern = this.routeString.replace(/:(\w+)/g, "([^/]+)");
-    const regex = new RegExp(`^${pattern}$`);
-    const match = path.match(regex);
+    return Optionable.some((() => {
+      const pattern = this.routeString.replace(/:(\w+)/g, "([^/]+)");
+      const regex = new RegExp(`^${pattern}$`);
+      const match = path.match(regex);
 
-    if (match) {
-      return { postId: match[1] };
-    }
-    return undefined;
+      if (match) {
+        return { postId: match[1] };
+      }
+      return undefined;
+    })());
   }
 
   TGetContextType: { postId: string };
@@ -58,9 +60,9 @@ describe("router Integration Test", () => {
 
     // Verify route matcher types and functionality
     const matchResult = routeMatcher.match("/posts/123");
-    expect(matchResult).toBeDefined();
-    expect(matchResult?.postId).toBe("123");
-    expectTypeOf(matchResult).toEqualTypeOf<{ postId: string } | undefined>();
+    expect(matchResult.isSome()).toBe(true);
+    expect(matchResult.unpack().valueOf().postId).toBe("123");
+    expectTypeOf(matchResult).toEqualTypeOf<Optionable<{ postId: string }>>();
 
     // Verify route string
     expect(routeMatcher.getRouteString()).toBe("/posts/:postId");
@@ -177,10 +179,10 @@ describe("router Integration Test", () => {
 
     // Test route parameter extraction
     const paramTest = routeMatcher.match("/posts/abc-123-def");
-    expect(paramTest?.postId).toBe("abc-123-def");
+    expect(paramTest.unpack().valueOf().postId).toBe("abc-123-def");
 
     // Test non-matching route
     const noMatch = routeMatcher.match("/users/123");
-    expect(noMatch).toBeUndefined();
+    expect(noMatch.isNone()).toBe(true);
   });
 });

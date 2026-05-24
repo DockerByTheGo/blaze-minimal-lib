@@ -7,7 +7,7 @@ import type { Hook } from "../../types/Hooks/Hooks";
 import type { RequestData } from "../types";
 import type { IRouteHandler } from "./routeHandler/types";
 import type { IRouteHandlerDefault } from "./routeHandler/types/IRouteHandler";
-import type { RouteMAtcher } from "./routeMatcher/types";
+import type { RouteMatcher } from "./routeMatcher/types";
 import type { PathStringToObject, ProtocolHandlers, RouteHandlerHooks, RouterHooks, RouteTree } from "./types";
 
 import { Hooks } from "../../types/Hooks/Hooks";
@@ -30,7 +30,7 @@ export class RouterObject<
   }
 
   addRoute<
-    TRoouteMAtcher extends RouteMAtcher<URecord>,
+    TRoouteMAtcher extends RouteMatcher<URecord>,
     THandlerReturn extends Response,
     THooks extends Partial<RouteHandlerHooks<TRouterHooks>>,
     TProtocol extends string,

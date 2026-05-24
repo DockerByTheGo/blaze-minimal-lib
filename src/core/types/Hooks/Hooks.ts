@@ -1,6 +1,6 @@
 import type { Last, URecord } from "@blazyts/better-standard-library";
 
-import { TypeMarker } from "@blazyts/better-standard-library";
+import { panicTypeOnlyVariable, TypeMarker } from "@blazyts/better-standard-library";
 
 export class Hook<
   TName extends string,
@@ -11,34 +11,6 @@ export class Hook<
   TGetArgType: Parameters<THandler>[0];
   TGetReturnType: ReturnType<THandler>;
 }
-
-type FindHookByName<
-  THooks extends readonly Hook<string, any>[],
-  TTargetName extends string,
-> = THooks extends readonly [
-  infer First extends Hook<string, any>,
-  ...infer Rest extends readonly Hook<string, any>[],
-]
-  ? First["name"] extends TTargetName
-    ? First
-    : FindHookByName<Rest, TTargetName>
-  : never;
-
-type FindNextHookByName<
-  THooks extends readonly Hook<string, any>[],
-  TTargetName extends string,
-  Found extends boolean = false,
->
-  = THooks extends readonly [
-    infer First extends Hook<string, any>,
-    ...infer Rest extends readonly Hook<string, any>[],
-  ]
-    ? Found extends true
-      ? First // <-- immediately return the next one
-      : First["name"] extends TTargetName
-        ? FindNextHookByName<Rest, TTargetName, true>
-        : FindNextHookByName<Rest, TTargetName, false>
-    : never;
 
 export class Hooks<
   THooks extends (Hook<string, (arg: unknown) => unknown>)[],
@@ -57,7 +29,7 @@ export class Hooks<
   TGetLastHook: Last<THooks>;
 
   TGetHookByName<THookName extends THooks[number]["name"]>(): THookName extends THooks[number]["name"] ? THooks[number] : never {
-
+  panicTypeOnlyVariable()
   };
 
   TGetHookNames: THooks[number]["name"];

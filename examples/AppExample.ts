@@ -1,35 +1,104 @@
-// why use app?
+import type { IRouteHandler, RequestData, RouteMatcher } from "../index";
 
-import { Optionable } from "errors-as-types/lib/rust-like-pattern/option";
-import { z } from "zod";
+import { RouterObject } from "../index";
 
-import { App, ResponseStatus } from "../src/app";
-import { ApiPath } from "../src/types/apiApth";
+type UserRouteParams = {
+  userId: string;
+};
 
-// well the webRouter part is supposed to a self contained piece so that it can be plugged into existing express apps. However it lacks some things so App is going one above it and providing some utilities like openapi tracking and also stacking contexts
+type ExampleRequestData = RequestData & {
+  protocol: "GET";
+};
 
-const app = new App({ hi: "" });
+type ExampleRequest = {
+  reqData: ExampleRequestData;
+  requestId: string;
+  body: UserRouteParams;
+};
 
-const userRouter = app.createChildRouter(new ApiPath("/users"), { f: "" });
+type ExampleResponse = {
+  body: {
+    ok: true;
+    userId: string;
+    requestId: string;
+  };
+};
 
-userRouter.get(
-  "l",
-  {
-    body: z.object({}),
-    params: z.object({}),
-    responses: z.object({}),
-  },
+class UserRouteMatcher implements RouteMatcher<UserRouteParams> {
+  type = "example";
+  TGetRouteString!: "/users/:userId";
+  TGetContextType!: UserRouteParams;
 
-  async (req, res, next, ctx) => {
-    ctx.f;
-    ctx.hi;
-    // also since we use app we also have ACCESS to the parent context
+  getRouteString() {
+    return "/users/:userId";
+  }
+
+  match(path: string): UserRouteParams | undefined {
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length !== 2 || parts[0] !== "users") {
+      return undefined;
+    }
+
+    return { userId: parts[1] };
+  }
+}
+
+const userRoute = new UserRouteMatcher();
+
+const getUserHandler: IRouteHandler<ExampleRequest, ExampleResponse> = {
+  metadata: {},
+  getClientRepresentation() {
     return {
-      status: new ResponseStatus(200),
-      data: { message: "hello world" },
+      description: "Return a JSON payload for a matched user route.",
     };
   },
-  {
-    description: new Optionable("Get user list"),
+  handleRequest(request) {
+    return {
+      body: {
+        ok: true,
+        userId: request.body.userId,
+        requestId: request.requestId,
+      },
+    };
   },
-);
+};
+
+async function main() {
+  const router = RouterObject
+    .empty()
+    .beforeHandler({
+      name: "attach-route-params-and-request-id",
+      handler: (request) => {
+        // The current router uses `getRouteString()` for registration,
+        // so we normalize the matcher result here before the handler runs.
+        const params = userRoute.match(request.reqData.url);
+        if (!params) {
+          throw new Error("Route params could not be resolved");
+        }
+
+        return {
+          ...request,
+          requestId: "req-demo-001",
+          body: params,
+        };
+      },
+    })
+    .addRoute({
+      routeMatcher: userRoute,
+      protocol: "GET",
+      handler: getUserHandler,
+    });
+
+  const response = await router.route({
+    reqData: {
+      url: "users/42",
+      headers: {},
+      body: {},
+      protocol: "GET",
+    },
+  } as ExampleRequest);
+
+  console.log(JSON.stringify(response, null, 2));
+}
+
+void main();
