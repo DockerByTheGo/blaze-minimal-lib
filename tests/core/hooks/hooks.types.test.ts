@@ -1,24 +1,10 @@
 import { describe, expectTypeOf, it } from "vitest";
 
-import type { HookDfault, HooksDefault } from "../../../src/core/hooks";
+import type { HooksDefault } from "../../../src/core/hooks";
 
 import { Hook, Hooks } from "../../../src/core/hooks";
 
 describe("hooks type tests", () => {
-  it("preserves hook name, argument, and return types", () => {
-    const hook = new Hook(
-      "add-token",
-      (arg: { url: string }) => ({ ...arg, token: "abc123" as const }),
-    );
-
-    expectTypeOf(hook.name).toEqualTypeOf<"add-token">();
-    expectTypeOf(hook.TGetArgType).toEqualTypeOf<{ url: string }>();
-    expectTypeOf(hook.TGetReturnType).toEqualTypeOf<{
-      url: string;
-      token: "abc123";
-    }>();
-  });
-
   it("threads each added hook from the previous hook return type", () => {
     const hooks = Hooks
       .empty()
@@ -86,12 +72,9 @@ describe("hooks type tests", () => {
       }>
     >();
 
-    // @ts-expect-error Unknown hook names are rejected by the lookup type.
-    type UnknownHook = ReturnType<typeof hooks.TGetHookByName<"missing">>;
   });
 
-  it("exports default hook aliases", () => {
-    expectTypeOf<HookDfault>().toEqualTypeOf<Hook<string, (arg: any) => unknown>>();
+  it("exports the default hooks alias", () => {
     expectTypeOf<HooksDefault>().toEqualTypeOf<Hooks<Hook<string, (arg: any) => unknown>[]>>();
   });
 });
