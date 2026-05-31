@@ -1,6 +1,6 @@
 import type { URecord } from "@blazyts/better-standard-library";
 
-import type { HooksDefault } from "../../../types/Hooks/Hooks";
+import type { HooksDefault } from "@src/core/hooks/types/HooksDefault";
 import type { IRouteHandler, Request, Response } from "../routeHandler";
 
 export * from "./PathStringToObject";
